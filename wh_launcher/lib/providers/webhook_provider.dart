@@ -26,13 +26,16 @@ final onDeletePressedProvider = Provider<Function(int)>((ref) {
 
 final onPlayPressedProvider = Provider<Function(Map<String, dynamic>?)>((ref) {
   return (Map<String, dynamic>? webhook) async {
-    print("Selected webhook: $webhook");
     if (webhook != null) {
       final String url = webhook['url'] as String;
       if (url.isNotEmpty) {
-        final dio = Dio();
-        final response = await dio.get(url);
-        print('URL: $url, Response: $response');
+        try {
+          final dio = Dio();
+          final response = await dio.get(url);
+          print('URL: $url, Response: $response');
+        } catch (error) {
+          print('Error occurred while making the request: $error');
+        }
       } else {
         print('Invalid URL');
       }
@@ -45,11 +48,11 @@ final onPlayPressedProvider = Provider<Function(Map<String, dynamic>?)>((ref) {
 class WebHooksNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   final Box<dynamic> _webHookBox;
 
-  WebHooksNotifier(this._webHookBox) : super([]);
+  WebHooksNotifier(this._webHookBox) : super([]) {
+    loadData();
+  }
 
-  Future<void> addWebHook(Map<String, dynamic> newItem) async {
-    await _webHookBox.add(newItem);
-
+  Future<void> loadData() async {
     final data = _webHookBox.keys.map((key) {
       final value = _webHookBox.get(key);
       return {
@@ -61,17 +64,13 @@ class WebHooksNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     state = data;
   }
 
+  Future<void> addWebHook(Map<String, dynamic> newItem) async {
+    await _webHookBox.add(newItem);
+    loadData();
+  }
+
   Future<void> deleteWebHook(int index) async {
     await _webHookBox.deleteAt(index);
-
-    final data = _webHookBox.keys.map((key) {
-      final value = _webHookBox.get(key);
-      return {
-        'name': value['name'],
-        'url': value['url'],
-      };
-    }).toList();
-
-    state = data;
+    loadData();
   }
 }

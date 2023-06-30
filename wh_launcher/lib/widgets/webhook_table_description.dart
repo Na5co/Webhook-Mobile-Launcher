@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
+
 class WebHookTableDescription extends StatelessWidget {
   final String text;
   final Color color;
@@ -9,21 +11,31 @@ class WebHookTableDescription extends StatelessWidget {
     Key? key,
     required this.text,
     this.color = Colors.white,
-    this.fontSize = 16,
+    this.fontSize = 14,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Container(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.black,
+            width: 1.0,
+          ),
+        ),
+      ),
       child: Text(
         text,
         style: TextStyle(
           fontSize: fontSize,
           color: color,
-          fontFamily: 'Raleway', // Custom font
-          fontWeight: FontWeight.w500, // Adjust the font weight as desired
-          letterSpacing: 1.2, // Increase the letter spacing for a modern look
+          fontFamily: 'Raleway',
+          fontWeight: FontWeight.w500,
+          fontStyle: FontStyle.italic,
+          letterSpacing: 1.2,
         ),
       ),
     );

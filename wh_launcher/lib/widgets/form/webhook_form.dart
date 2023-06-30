@@ -14,17 +14,6 @@ import '../../providers/webhook_provider.dart';
 class CreateWebHookForm extends ConsumerWidget {
   const CreateWebHookForm({Key? key}) : super(key: key);
 
-  void _onPlayPressed(Map<String, dynamic> webhook) async {
-    final String url = webhook['url'];
-    if (url.isNotEmpty) {
-      final dio = Dio();
-      final response = await dio.get(url);
-      print('URL: $url, Response: $response');
-    } else {
-      print('Invalid URL');
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final _webHooks = ref.watch(webHooksProvider.notifier);

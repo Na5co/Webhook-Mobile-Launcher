@@ -7,20 +7,18 @@ class WebHookListWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final webHooks = ref.watch(webHooksProvider);
-    final Function(Map<String, dynamic>) onPlayPressed =
-        ref.read(onPlayPressedProvider);
-    final Function(int) onDeletePressed = (int index) {
-      final webHooks = ref.watch(webHooksProvider);
+    final onPlayPressed = ref.read(onPlayPressedProvider);
+
+    void onDeletePressed(int index) {
       if (index >= 0 && index < webHooks.length) {
         ref.read(webHooksProvider.notifier).deleteWebHook(index);
-        print("Selected webhook index: $index");
       } else {
         print("Invalid index: $index");
         print("WebHooks length: ${webHooks.length}");
       }
-    };
+    }
 
-    if (webHooks == null || webHooks.isEmpty) {
+    if (webHooks.isEmpty) {
       return Container();
     }
 

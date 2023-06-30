@@ -20,6 +20,8 @@ class CreateWebHookForm extends ConsumerWidget {
       ref.read(webHooksProvider.notifier).addWebHook(newItem);
     }
 
+    final double verticalSpacing = MediaQuery.of(context).size.height * 0.02;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -32,20 +34,25 @@ class CreateWebHookForm extends ConsumerWidget {
           ),
           const Center(
             child: WebHookTableDescription(
-              text: "Create a new webhook",
-              color: Colors.purple,
+              text: "Created Webhooks will be stored in the drawer.",
+              color: Colors.grey,
+              fontSize: 11,
             ),
+          ),
+          const SizedBox(
+            height: 16,
           ),
           WebHookTextField(
             controller: urlController,
             labelText: 'Webhook URL',
           ),
-          const SizedBox(height: 20),
-          WebHookTextField(
-            controller: nameController,
-            labelText: 'Webhook Name',
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: verticalSpacing),
+            child: WebHookTextField(
+              controller: nameController,
+              labelText: 'Webhook Name',
+            ),
           ),
-          const SizedBox(height: 20),
           CreateWebHookButton(
             onPressed: () {
               _createWh({
@@ -54,13 +61,26 @@ class CreateWebHookForm extends ConsumerWidget {
               });
             },
           ),
-          const SizedBox(height: 20),
           if (webHooks.isNotEmpty)
-            SingleWebhook(
-              webhook: webHooks[0],
-              onPlayPressed: ref.read(onPlayPressedProvider),
-              onDeletePressed: ref.read(onDeletePressedProvider),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: verticalSpacing),
+              child: SingleWebhook(
+                webhook: webHooks[webHooks.length - 1], // Use the last item
+                onPlayPressed: ref.read(onPlayPressedProvider),
+                onDeletePressed: ref.read(onDeletePressedProvider),
+              ),
             ),
+          Container(
+            margin: EdgeInsets.only(top: verticalSpacing),
+            child: const Text(
+              '© 2023 Webhook Launcher is open source, find it on GitHub',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ],
       ),
     );
