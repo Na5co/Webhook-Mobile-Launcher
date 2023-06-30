@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wh_launcher/widgets/list/webhook_single_item.dart';
-import '../providers/webhook_provider.dart';
+import '../providers/webhook_provider.dart'; // Import the provider file
 import '../widgets/form/webhook_text_field.dart';
 import '../widgets/form/create_webhook_button.dart';
 import '../widgets/webhook_table_description.dart';
@@ -17,10 +17,13 @@ class CreateWebHookForm extends ConsumerWidget {
     final urlController = TextEditingController();
 
     Future<void> _createWh(Map<String, dynamic> newItem) async {
+      print('Creating webhook...');
       ref.read(webHooksProvider.notifier).addWebHook(newItem);
     }
 
     final double verticalSpacing = MediaQuery.of(context).size.height * 0.02;
+
+    final urlValidator = ref.watch(urlValidatorProvider);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -45,6 +48,8 @@ class CreateWebHookForm extends ConsumerWidget {
           WebHookTextField(
             controller: urlController,
             labelText: 'Webhook URL',
+            validator: (value) =>
+                urlValidator(value ?? '') ? null : 'Invalid URL',
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: verticalSpacing),
@@ -55,10 +60,26 @@ class CreateWebHookForm extends ConsumerWidget {
           ),
           CreateWebHookButton(
             onPressed: () {
-              _createWh({
-                'name': nameController.text,
-                'url': urlController.text,
-              });
+              if (urlValidator(urlController.text)) {
+                _createWh({
+                  'name': nameController.text,
+                  'url': urlController.text,
+                });
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Invalid URL'),
+                    content: Text('Please enter a valid URL.'),
+                    actions: [
+                      TextButton(
+                        child: Text('OK'),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                );
+              }
             },
           ),
           if (webHooks.isNotEmpty)

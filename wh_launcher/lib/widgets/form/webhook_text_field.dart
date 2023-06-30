@@ -3,39 +3,24 @@ import 'package:flutter/material.dart';
 class WebHookTextField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
+  final FormFieldValidator<String>? validator; // Add the validator parameter
 
   const WebHookTextField({
-    Key? key,
     required this.controller,
     required this.labelText,
-  }) : super(key: key);
+    this.validator, // Accept the validator parameter in the constructor
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(8),
+    final String value = controller.text;
+
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: TextField(
-          controller: controller,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.black,
-          ),
-          decoration: InputDecoration(
-            labelText: labelText,
-            labelStyle: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
-            border: InputBorder.none,
-          ),
-        ),
-      ),
+      validator: validator, // Use the provided validator
     );
   }
 }
