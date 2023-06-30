@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../widgets/local_text.dart';
-import '../providers/webhook_provider.dart';
-import './webhook_list.dart';
-import '../widgets/form/webhook_text_field.dart';
-import '../widgets/form/create_webhook_button.dart';
-import '../widgets/form/webhook_card.dart';
+import '../local_text.dart';
+import '../../providers/webhook_provider.dart';
+import '../../pages/webhook_list.dart';
+import 'webhook_text_field.dart';
+import 'create_webhook_button.dart';
+import 'webhook_card.dart';
 
 class CreateWebHookForm extends ConsumerWidget {
   const CreateWebHookForm({Key? key}) : super(key: key);
