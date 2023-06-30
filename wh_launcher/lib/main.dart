@@ -3,10 +3,9 @@ import 'dart:developer';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import '../pages/create_wh.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../pages/wh_list.dart';
+import 'pages/webhook_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +13,7 @@ void main() async {
   await Hive.openBox('webhooks');
 
   runApp(
-    ProviderScope(
+    const ProviderScope(
       child: MyApp(),
     ),
   );
@@ -42,10 +41,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  /// Controller to handle PageView and also handles initial page
   final _pageController = PageController(initialPage: 0);
 
-  /// Controller to handle bottom nav bar and also handles initial page
   final _controller = NotchBottomBarController(index: 0);
 
   int maxCount = 5;
@@ -58,8 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   /// widget list
   final List<Widget> bottomBarPages = [
-    const DrawerWH(),
-    const WebHookList(),
+    WebHookList(),
+    CreateWebHookForm(),
   ];
 
   @override
@@ -75,13 +72,10 @@ class _MyHomePageState extends State<MyHomePage> {
       extendBody: true,
       bottomNavigationBar: (bottomBarPages.length <= maxCount)
           ? AnimatedNotchBottomBar(
-              /// Provide NotchBottomBarController
               notchBottomBarController: _controller,
               color: Colors.white,
               showLabel: false,
               notchColor: Colors.black87,
-
-              /// restart app if you change removeMargins
               removeMargins: false,
               bottomBarWidth: 500,
               durationInMilliSeconds: 300,
@@ -121,8 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
               onTap: (index) {
-                print("hey");
-
                 /// perform action on tab change and to update pages you can update pages without pages
                 log('current selected index $index');
                 _pageController.jumpToPage(index);
