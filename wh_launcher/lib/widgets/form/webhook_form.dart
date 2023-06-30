@@ -7,7 +7,7 @@ import 'webhook_text_field.dart';
 import 'create_webhook_button.dart';
 import '../webhook_table_description.dart';
 import '../webhook_table_title.dart';
-import '../list/webhook_list_view.dart';
+import '../list/webhook_single_item.dart';
 import 'package:dio/dio.dart';
 import '../../providers/webhook_provider.dart';
 

@@ -1,31 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/webhook_provider.dart';
-import '../widgets/list/webhook_list_view.dart'; // Import the single webhook item
+import '../widgets/list/webhook_single_item.dart'; // Import the single webhook item
 
 class WebHookListWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final webHooks = ref.watch(
-        webHooksProvider); // Assuming webHooksProvider is a valid provider for your list of webhooks
+    final webHooks = ref.watch(webHooksProvider);
     final Function(Map<String, dynamic>) onPlayPressed =
         ref.read(onPlayPressedProvider);
-    final Function(int) onDeletePressed = ref.read(onDeletePressedProvider);
+    final Function(int) onDeletePressed = (int index) {
+      final webHooks = ref.watch(webHooksProvider);
+      if (index >= 0 && index < webHooks.length) {
+        ref.read(webHooksProvider.notifier).deleteWebHook(index);
+        print("Selected webhook index: $index");
+      } else {
+        print("Invalid index: $index");
+        print("WebHooks length: ${webHooks.length}");
+      }
+    };
 
     if (webHooks == null || webHooks.isEmpty) {
-      return Container(); // or any other widget you want to show for null or empty list
+      return Container();
     }
 
-    return ListView(
+    return ListView.builder(
       shrinkWrap: true,
-      children: webHooks.map((webhook) {
+      itemCount: webHooks.length,
+      itemBuilder: (context, index) {
+        final webhook = webHooks[index];
         return SingleWebhook(
-          itemCount: webHooks.length,
           onPlayPressed: onPlayPressed,
           onDeletePressed: onDeletePressed,
-          webhooks: webHooks,
+          webhook: webhook,
         );
-      }).toList(),
+      },
     );
   }
 }

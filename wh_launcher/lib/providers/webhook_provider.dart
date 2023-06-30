@@ -13,26 +13,31 @@ final webHooksProvider =
 
 final onDeletePressedProvider = Provider<Function(int)>((ref) {
   return (int index) {
-    final webHooks = ref.read(webHooksProvider);
-    final webhook = webHooks[index];
-    ref.read(webHooksProvider.notifier).deleteWebHook(index);
-
-    print("Selected webhook index: $index");
-    print("Selected webhook: $webhook");
-    // Perform additional delete operations if needed
+    final webHooks = ref.watch(webHooksProvider);
+    if (index >= 0 && index < webHooks.length) {
+      ref.read(webHooksProvider.notifier).deleteWebHook(index);
+      print("Selected webhook index: $index");
+    } else {
+      print("Invalid index: $index");
+      print("WebHooks length: ${webHooks.length}");
+    }
   };
 });
 
-final onPlayPressedProvider = Provider<Function(Map<String, dynamic>)>((ref) {
-  return (Map<String, dynamic> webhook) async {
+final onPlayPressedProvider = Provider<Function(Map<String, dynamic>?)>((ref) {
+  return (Map<String, dynamic>? webhook) async {
     print("Selected webhook: $webhook");
-    final String url = webhook['url'];
-    if (url.isNotEmpty) {
-      final dio = Dio();
-      final response = await dio.get(url);
-      print('URL: $url, Response: $response');
+    if (webhook != null) {
+      final String url = webhook['url'] as String;
+      if (url.isNotEmpty) {
+        final dio = Dio();
+        final response = await dio.get(url);
+        print('URL: $url, Response: $response');
+      } else {
+        print('Invalid URL');
+      }
     } else {
-      print('Invalid URL');
+      print('Invalid webhook');
     }
   };
 });
