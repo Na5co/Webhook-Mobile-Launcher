@@ -1,51 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/webhook_provider.dart';
-import '../widgets/webhook_list_description.dart';
-import '../widgets/webhook_list_title.dart';
-import '../widgets/list/webhook_list_view.dart';
-import 'package:dio/dio.dart';
+import '../widgets/list/webhook_list_view.dart'; // Import the single webhook item
 
-class WebHookList extends ConsumerWidget {
-  final int? itemCount;
-
-  WebHookList({this.itemCount});
-
-  void _onPlayPressed(String url) async {
-    if (url.isNotEmpty) {
-      final dio = Dio();
-      final response = await dio.get(url);
-      print('URL: $url, Response: $response');
-    } else {
-      print('Invalid URL');
-    }
-  }
-
+class WebHookListWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final _webHooks = ref.watch(webHooksProvider);
+    final webHooks = ref.watch(
+        webHooksProvider); // Assuming webHooksProvider is a valid provider for your list of webhooks
+    final Function(Map<String, dynamic>) onPlayPressed =
+        ref.read(onPlayPressedProvider);
+    final Function(int) onDeletePressed = ref.read(onDeletePressedProvider);
 
-    return Container(
-      color: const Color.fromRGBO(42, 7, 146, 0.176),
-      // Grey background color
-      child: Column(
-        children: [
-          WebHookListTitle(),
-          WebHookListDescription(),
-          Expanded(
-            child: WebHookListView(
-              itemCount: itemCount,
-              webHooks: _webHooks,
-              onPlayPressed: (webhook) async {
-                _onPlayPressed(webhook['url']);
-              },
-              onDeletePressed: (index) {
-                ref.read(webHooksProvider.notifier).deleteWebHook(index);
-              },
-            ),
-          ),
-        ],
-      ),
+    if (webHooks == null || webHooks.isEmpty) {
+      return Container(); // or any other widget you want to show for null or empty list
+    }
+
+    return ListView(
+      shrinkWrap: true,
+      children: webHooks.map((webhook) {
+        return SingleWebhook(
+          itemCount: webHooks.length,
+          onPlayPressed: onPlayPressed,
+          onDeletePressed: onDeletePressed,
+          webhooks: webHooks,
+        );
+      }).toList(),
     );
   }
 }

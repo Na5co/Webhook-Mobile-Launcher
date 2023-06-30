@@ -5,63 +5,74 @@ import '../../providers/webhook_provider.dart';
 import '../../pages/webhook_list.dart';
 import 'webhook_text_field.dart';
 import 'create_webhook_button.dart';
-import 'webhook_card.dart';
+import '../webhook_table_description.dart';
+import '../webhook_table_title.dart';
+import '../list/webhook_list_view.dart';
+import 'package:dio/dio.dart';
+import '../../providers/webhook_provider.dart';
 
 class CreateWebHookForm extends ConsumerWidget {
   const CreateWebHookForm({Key? key}) : super(key: key);
 
+  void _onPlayPressed(Map<String, dynamic> webhook) async {
+    final String url = webhook['url'];
+    if (url.isNotEmpty) {
+      final dio = Dio();
+      final response = await dio.get(url);
+      print('URL: $url, Response: $response');
+    } else {
+      print('Invalid URL');
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final _webHooks = ref.watch(webHooksProvider.notifier);
-    final _webHookBox = ref.watch(webHookBoxProvider);
-    final _nameController = TextEditingController();
-    final _urlController = TextEditingController();
+    final nameController = TextEditingController();
+    final urlController = TextEditingController();
+    Map<String, dynamic>? lastWebHook;
 
     Future<void> _createWh(Map<String, dynamic> newItem) async {
       await _webHooks.addWebHook(newItem);
+      lastWebHook = newItem; // Update lastWebHook with the newly added webhook
     }
-
-    print('Render CreateWebHookForm'); // Check if the widget is being rebuilt
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 150),
+          const Center(
+            child: WebHookTableTitle(
+              text: "Create Webhook",
+            ),
+          ),
+          const Center(
+            child: WebHookTableDescription(
+              text: "Create a new webhook",
+              color: Colors.purple,
+            ),
+          ),
           WebHookTextField(
-            controller: _urlController,
+            controller: urlController,
             labelText: 'Webhook URL',
           ),
           const SizedBox(height: 20),
           WebHookTextField(
-            controller: _nameController,
+            controller: nameController,
             labelText: 'Webhook Name',
           ),
           const SizedBox(height: 20),
           CreateWebHookButton(
             onPressed: () {
               _createWh({
-                'name': _nameController.text,
-                'url': _urlController.text,
+                'name': nameController.text,
+                'url': urlController.text,
               });
-
-              print('Create Webhook'); // Check if the button is pressed
             },
           ),
           const SizedBox(height: 20),
-          WebHookCard(
-            child: Consumer(
-              builder: (context, ref, child) {
-                final webHooks = ref.watch(webHooksProvider);
-
-                print(
-                    'Render WebHookList: ${webHooks.length}'); // Check if the webhook list is updated
-
-                return WebHookList(itemCount: webHooks.length);
-              },
-            ),
-          ),
+          if (lastWebHook != null) WebHookListWidget(),
         ],
       ),
     );

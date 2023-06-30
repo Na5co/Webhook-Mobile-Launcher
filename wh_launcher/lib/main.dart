@@ -2,9 +2,10 @@ import 'dart:developer';
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import '../pages/create_wh.dart';
+import 'pages/webhook_creation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import './widgets/list/webhook_list_view.dart';
 import 'pages/webhook_list.dart';
 
 void main() async {
@@ -28,46 +29,78 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+final myHomePageStateProvider =
+    StateNotifierProvider<MyHomePageNotifier, int>((ref) {
+  return MyHomePageNotifier(0);
+});
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+class MyHomePageNotifier extends StateNotifier<int> {
+  MyHomePageNotifier(int initialState) : super(initialState);
+
+  void setPage(int pageIndex) {
+    state = pageIndex;
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final _pageController = PageController(initialPage: 0);
+final webHooksProvider = Provider<List<Map<String, dynamic>>>((ref) {
+  final webHookBox = Hive.box('webhooks');
+  final webHooks = webHookBox.values.toList();
 
-  final _controller = NotchBottomBarController(index: 0);
+  final convertedWebHooks = webHooks
+      .map((item) {
+        if (item != null && item is Map<dynamic, dynamic>) {
+          return Map<String, dynamic>.from(item);
+        }
+        return null;
+      })
+      .whereType<Map<String, dynamic>>()
+      .toList();
 
-  int maxCount = 5;
+  return convertedWebHooks.isNotEmpty ? convertedWebHooks : [];
+});
+
+final notchBottomBarControllerProvider = Provider<NotchBottomBarController>(
+    (ref) => NotchBottomBarController(index: 0));
+
+class MyHomePage extends ConsumerWidget {
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final PageController _pageController = PageController(initialPage: 0);
+    final NotchBottomBarController _controller =
+        ref.read(notchBottomBarControllerProvider);
+    const int maxCount = 5;
 
-  /// widget list
-  final List<Widget> bottomBarPages = [
-    WebHookList(),
-    CreateWebHookForm(),
-  ];
+    final List<Widget> bottomBarPages = [
+      Scaffold(
+        appBar: AppBar(
+          title: const Text('Webhooks'),
+        ),
+        body: WebHookListWidget(),
+      ),
+      Scaffold(
+        appBar: AppBar(
+          title: const Text('Create Webhook'),
+        ),
+        body: const CreateWebHookForm(),
+      ),
+    ];
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
-        children: List.generate(
-            bottomBarPages.length, (index) => bottomBarPages[index]),
+        children: bottomBarPages,
+        onPageChanged: (pageIndex) {
+          ref.read(myHomePageStateProvider.notifier).setPage(pageIndex);
+        },
       ),
       extendBody: true,
       bottomNavigationBar: (bottomBarPages.length <= maxCount)
@@ -115,7 +148,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
               onTap: (index) {
-                /// perform action on tab change and to update pages you can update pages without pages
                 log('current selected index $index');
                 _pageController.jumpToPage(index);
               },
