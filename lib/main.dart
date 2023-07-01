@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'pages/webhook_creation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'widgets/list/webhook_single_item.dart';
 import 'pages/webhook_list.dart';
 
 void main() async {

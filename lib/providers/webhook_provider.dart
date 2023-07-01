@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dio/dio.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 final webHookBoxProvider =
     Provider<Box<dynamic>>((ref) => Hive.box('webhooks'));

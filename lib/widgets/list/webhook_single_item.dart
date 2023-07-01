@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'dart:async';
-import 'package:dio/dio.dart';
 
 class SingleWebhook extends StatefulWidget {
   final Map<String, dynamic>? webhook;
   final Function(Map<String, dynamic>) onPlayPressed;
   final Function(int) onDeletePressed;
 
-  SingleWebhook({
+  const SingleWebhook({
     Key? key,
     required this.webhook,
     required this.onPlayPressed,
@@ -50,8 +49,8 @@ class _SingleWebhookState extends State<SingleWebhook> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.redAccent.withOpacity(0.2),
-                      Colors.deepOrangeAccent.withOpacity(0.1),
+                      Colors.redAccent.withOpacity(0.5),
+                      Colors.red.withOpacity(0.4),
                     ],
                     stops: const [0.1, 1],
                   )
@@ -95,7 +94,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
             spacing: 8,
             children: [
               isLoading
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : IconButton(
                       onPressed: () async {
                         if (widget.webhook != null) {
@@ -129,7 +128,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
                           }
                         }
                       },
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.play_circle_fill_sharp,
                         color: Colors.green,
                       ),
@@ -138,7 +137,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
                 onPressed: () {
                   widget.onDeletePressed(widget.webhook?['id'] as int? ?? 0);
                 },
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
                 color: Colors.red,
               ),
             ],
