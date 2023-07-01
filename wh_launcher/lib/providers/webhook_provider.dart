@@ -30,12 +30,29 @@ final onPlayPressedProvider = Provider<Function(Map<String, dynamic>?)>((ref) {
     if (webhook != null) {
       final String url = webhook['url'] as String;
       if (url.isNotEmpty) {
+        Response<dynamic>? response; // Declare response variable
         try {
           final dio = Dio();
-          final response = await dio.get(url);
+          response = await dio.get(url); // Assign value to response
           print('URL: $url, Response: $response');
+
+          if (response.statusCode == 200 ||
+              response.statusCode == 201 ||
+              response.statusCode == 204) {
+            // Successful response, update the UI accordingly
+            print('Request successful');
+          } else {
+            print('Request failed');
+            throw DioException(
+              requestOptions: RequestOptions(path: url),
+              error: 'Unexpected response code: ${response.statusCode}',
+              response: response,
+            );
+          }
         } catch (error) {
+          // Handle request error
           print('Error occurred while making the request: $error');
+          throw error; // Rethrow the error
         }
       } else {
         print('Invalid URL');

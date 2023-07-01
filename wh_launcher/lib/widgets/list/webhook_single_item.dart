@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
+import 'dart:async';
+import 'package:dio/dio.dart';
 
-class SingleWebhook extends StatelessWidget {
+class SingleWebhook extends StatefulWidget {
   final Map<String, dynamic>? webhook;
   final Function(Map<String, dynamic>) onPlayPressed;
   final Function(int) onDeletePressed;
@@ -14,6 +16,15 @@ class SingleWebhook extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _SingleWebhookState createState() => _SingleWebhookState();
+}
+
+class _SingleWebhookState extends State<SingleWebhook> {
+  bool isLoading = false;
+  bool isSuccess = false;
+  bool isFailure = false;
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -24,15 +35,35 @@ class SingleWebhook extends StatelessWidget {
         borderRadius: 8,
         blur: 20,
         alignment: Alignment.center,
-        linearGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.purpleAccent.withOpacity(0.2),
-            Colors.deepPurpleAccent.withOpacity(0.1),
-          ],
-          stops: const [0.1, 1],
-        ),
+        linearGradient: isSuccess
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.greenAccent.withOpacity(0.2),
+                  Colors.lightGreenAccent.withOpacity(0.1),
+                ],
+                stops: const [0.1, 1],
+              )
+            : isFailure
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.redAccent.withOpacity(0.2),
+                      Colors.deepOrangeAccent.withOpacity(0.1),
+                    ],
+                    stops: const [0.1, 1],
+                  )
+                : LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.purpleAccent.withOpacity(0.2),
+                      Colors.deepPurpleAccent.withOpacity(0.1),
+                    ],
+                    stops: const [0.1, 1],
+                  ),
         borderGradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -46,7 +77,7 @@ class SingleWebhook extends StatelessWidget {
           title: Padding(
             padding: const EdgeInsets.only(bottom: 4, left: 16, right: 16),
             child: Text(
-              webhook?['name'] as String? ?? '',
+              widget.webhook?['name'] as String? ?? '',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -56,29 +87,58 @@ class SingleWebhook extends StatelessWidget {
           subtitle: Padding(
             padding: const EdgeInsets.only(left: 16, right: 16),
             child: Text(
-              webhook?['url'] as String? ?? '',
+              widget.webhook?['url'] as String? ?? '',
               style: const TextStyle(fontSize: 14),
             ),
           ),
           trailing: Wrap(
             spacing: 8,
             children: [
-              IconButton(
-                onPressed: () async {
-                  if (webhook != null) {
-                    onPlayPressed(webhook!);
-                  }
-                },
-                icon: const Icon(
-                  Icons.play_circle_fill_sharp,
-                  color: Colors.green,
-                ),
-              ),
+              isLoading
+                  ? CircularProgressIndicator()
+                  : IconButton(
+                      onPressed: () async {
+                        if (widget.webhook != null) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          try {
+                            await widget.onPlayPressed(widget.webhook!);
+                            setState(() {
+                              isLoading = false;
+                              isSuccess = true;
+                              isFailure = false;
+                            });
+                            Timer(const Duration(seconds: 3), () {
+                              setState(() {
+                                isSuccess = false;
+                              });
+                            });
+                          } catch (e) {
+                            print('Error: $e');
+                            setState(() {
+                              isLoading = false;
+                              isSuccess = false;
+                              isFailure = true;
+                            });
+                            Timer(const Duration(seconds: 3), () {
+                              setState(() {
+                                isFailure = false;
+                              });
+                            });
+                          }
+                        }
+                      },
+                      icon: Icon(
+                        Icons.play_circle_fill_sharp,
+                        color: Colors.green,
+                      ),
+                    ),
               IconButton(
                 onPressed: () {
-                  onDeletePressed(webhook?['id'] as int? ?? 0);
+                  widget.onDeletePressed(widget.webhook?['id'] as int? ?? 0);
                 },
-                icon: const Icon(Icons.delete),
+                icon: Icon(Icons.delete),
                 color: Colors.red,
               ),
             ],
