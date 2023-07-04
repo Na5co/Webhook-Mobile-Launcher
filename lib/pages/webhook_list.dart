@@ -4,21 +4,20 @@ import '../providers/webhook_provider.dart';
 import '../widgets/list/webhook_single_item.dart';
 import '../widgets/webhook_table_title.dart';
 import '../widgets/webhook_table_description.dart';
+import '../providers/webhook_provider.dart' as wp;
 
 class WebHookListWidget extends ConsumerWidget {
   const WebHookListWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final webHooks = ref.watch(webHooksProvider);
+    final webHooks = ref.watch(wp.webHooksProvider);
     final onPlayPressed = ref.read(onPlayPressedProvider);
 
     void onDeletePressed(int index) {
-      if (index >= 0 && index < webHooks.length) {
-        ref.read(webHooksProvider.notifier).deleteWebHook(index);
-      } else {
-        print("WebHooks length: ${webHooks.length}");
-      }
+      final onDeletePressedFn = ref.read(onDeletePressedProvider);
+      print('deleting webhook at index: $index');
+      onDeletePressedFn(index);
     }
 
     if (webHooks.isEmpty) {
@@ -39,23 +38,27 @@ class WebHookListWidget extends ConsumerWidget {
           padding: const EdgeInsets.only(bottom: 16.0),
           child: CustomScrollView(
             slivers: [
-              SliverToBoxAdapter(
+              const SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const WebHookTableTitle(text: 'Webhook List'),
-                    const WebHookTableDescription(
+                    WebHookTableTitle(text: 'Webhook List'),
+                    WebHookTableDescription(
                       text: 'Created Webhooks will be stored in the drawer.',
                       color: Colors.grey,
                       fontSize: 12,
                     ),
-                    const Divider(),
+                    Divider(),
                   ],
                 ),
               ),
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
+                    if (index >= webHooks.length) {
+                      print('Invalid index: $index');
+                      return const SizedBox.shrink();
+                    }
                     final webhook = webHooks[index];
                     return Padding(
                       padding: const EdgeInsets.symmetric(

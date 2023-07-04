@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'dart:async';
+import '../list/ConfigurationPopupMenu.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/webhook_provider.dart';
+import '../../providers/shceduled_webhooks_provider.dart' as wp;
 
-class SingleWebhook extends StatefulWidget {
+class SingleWebhook extends ConsumerStatefulWidget {
   final Map<String, dynamic>? webhook;
-  final Function(Map<String, dynamic>) onPlayPressed;
+  final Function(Map<String, dynamic>?) onPlayPressed;
   final Function(int) onDeletePressed;
 
   const SingleWebhook({
@@ -18,13 +22,57 @@ class SingleWebhook extends StatefulWidget {
   _SingleWebhookState createState() => _SingleWebhookState();
 }
 
-class _SingleWebhookState extends State<SingleWebhook> {
-  bool isLoading = false;
-  bool isSuccess = false;
-  bool isFailure = false;
+class _SingleWebhookState extends ConsumerState<SingleWebhook> {
+  static LinearGradient getContainerGradient(bool isSuccess) {
+    if (isSuccess) {
+      return LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.greenAccent.withOpacity(0.2),
+          Colors.lightGreenAccent.withOpacity(0.1),
+        ],
+        stops: const [0.1, 1],
+      );
+    } else {
+      return LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.purpleAccent.withOpacity(0.2),
+          Colors.deepPurpleAccent.withOpacity(0.1),
+        ],
+        stops: const [0.1, 1],
+      );
+    }
+  }
+
+  static const Color _successColor = Colors.green;
+  static const Color _defaultColor = Colors.grey;
 
   @override
   Widget build(BuildContext context) {
+    final webhook = ref.watch(webHooksProvider).firstWhere(
+        (webhook) => webhook['id'] == widget.webhook?['id'],
+        orElse: () => {});
+
+    final webhookId = widget.webhook?['id'] as int? ?? 0;
+    final webhookState = ref.watch(webhookStateProvider).values.firstWhere(
+          (state) => state.webhook?['id'] == webhookId,
+          orElse: () => WebhookState(
+            isLoading: false,
+            isSuccess: false,
+            isFailure: false,
+            webhook: null,
+          ),
+        );
+
+    final onPlayPressed = ref.watch(onPlayPressedProvider);
+    final onDeletePressed = ref.watch(onDeletePressedProvider);
+
+    LinearGradient containerGradient =
+        getContainerGradient(webhookState.isSuccess ?? false);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: GlassmorphicContainer(
@@ -34,35 +82,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
         borderRadius: 8,
         blur: 20,
         alignment: Alignment.center,
-        linearGradient: isSuccess
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.greenAccent.withOpacity(0.2),
-                  Colors.lightGreenAccent.withOpacity(0.1),
-                ],
-                stops: const [0.1, 1],
-              )
-            : isFailure
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.redAccent.withOpacity(0.5),
-                      Colors.red.withOpacity(0.4),
-                    ],
-                    stops: const [0.1, 1],
-                  )
-                : LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.purpleAccent.withOpacity(0.2),
-                      Colors.deepPurpleAccent.withOpacity(0.1),
-                    ],
-                    stops: const [0.1, 1],
-                  ),
+        linearGradient: containerGradient,
         borderGradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -76,7 +96,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
           title: Padding(
             padding: const EdgeInsets.only(bottom: 4, left: 16, right: 16),
             child: Text(
-              widget.webhook?['name'] as String? ?? '',
+              webhook['name'] as String? ?? '',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -86,64 +106,122 @@ class _SingleWebhookState extends State<SingleWebhook> {
           subtitle: Padding(
             padding: const EdgeInsets.only(left: 16, right: 16),
             child: Text(
-              widget.webhook?['url'] as String? ?? '',
+              webhook['url'] as String? ?? '',
               style: const TextStyle(fontSize: 14),
             ),
           ),
           trailing: Wrap(
             spacing: 8,
             children: [
-              isLoading
-                  ? const CircularProgressIndicator()
-                  : IconButton(
-                      onPressed: () async {
-                        if (widget.webhook != null) {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          try {
-                            await widget.onPlayPressed(widget.webhook!);
-                            setState(() {
-                              isLoading = false;
-                              isSuccess = true;
-                              isFailure = false;
-                            });
-                            Timer(const Duration(seconds: 3), () {
-                              setState(() {
-                                isSuccess = false;
-                              });
-                            });
-                          } catch (e) {
-                            print('Error: $e');
-                            setState(() {
-                              isLoading = false;
-                              isSuccess = false;
-                              isFailure = true;
-                            });
-                            Timer(const Duration(seconds: 3), () {
-                              setState(() {
-                                isFailure = false;
-                              });
-                            });
-                          }
-                        }
-                      },
-                      icon: const Icon(
-                        Icons.play_circle_fill_sharp,
-                        color: Colors.green,
-                      ),
+              IconButton(
+                onPressed: () async {
+                  final webhookId = widget.webhook!['id'] as int;
+                  final webhookNotifier =
+                      ref.read(webhookStateProvider.notifier);
+
+                  webhookNotifier.setLoading(webhookId, true);
+                  await Future.delayed(
+                    const Duration(
+                      milliseconds: 5005,
                     ),
+                  );
+                  final result = await onPlayPressed(webhook);
+
+                  if (result) {}
+
+                  webhookNotifier.setSuccess(webhookId, result);
+                  webhookNotifier.setFailure(webhookId, !result);
+                  webhookNotifier.setLoading(webhookId, false);
+                },
+                icon: Builder(
+                  builder: (context) {
+                    final webhookId = widget.webhook?['id'] as int?;
+                    final webhookNotifier =
+                        ref.read(webhookStateProvider.notifier);
+                    final webhookState =
+                        webhookNotifier.getWebhookState(webhookId);
+
+                    if (webhookState?.isLoading == true) {
+                      return const CircularProgressIndicator();
+                    } else {
+                      return Icon(
+                        Icons.play_circle_fill_sharp,
+                        color: webhookState?.isSuccess ?? false
+                            ? _successColor
+                            : _defaultColor,
+                      );
+                    }
+                  },
+                ),
+              ),
               IconButton(
                 onPressed: () {
-                  widget.onDeletePressed(widget.webhook?['id'] as int? ?? 0);
+                  final webhookId = webhook['id'] as int?;
+                  if (webhookId != null) {
+                    onDeletePressed(webhookId);
+                  }
                 },
                 icon: const Icon(Icons.delete),
                 color: Colors.red,
+              ),
+              ConfigurationPopupMenu(
+                onConfigurePressed: (_) =>
+                    _openConfigurationMenu(context, webhook),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _openConfigurationMenu(
+      BuildContext context, Map<String, dynamic> webhook) async {
+    final DateTime? pickedDateTime = await DateTimePicker.pickDateTime(context);
+    if (pickedDateTime != null) {
+      final String name = webhook['name'] is String ? webhook['name'] : '';
+      final String url = webhook['url'] is String ? webhook['url'] : '';
+
+      final newWebhook = <String, dynamic>{
+        'name': name,
+        'url': url,
+        'scheduledDateTime': pickedDateTime.toIso8601String(),
+      };
+
+      ref
+          .read(wp.scheduledWebhooksProvider.notifier)
+          .addScheduledWebhook(newWebhook);
+
+      final box = ref.read(wp.scheduledWebhooksBoxProvider).values.toList();
+      print(box);
+    }
+  }
+}
+
+class DateTimePicker {
+  static Future<DateTime?> pickDateTime(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedDate != null && pickedTime != null) {
+      return DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+    } else {
+      return null;
+    }
   }
 }
