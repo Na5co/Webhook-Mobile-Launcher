@@ -4,6 +4,7 @@ import 'dart:async';
 import '../list/ConfigurationPopupMenu.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/webhook_provider.dart';
+import '../../providers/webhook_state.dart';
 import '../../providers/scheduled_webhooks_provider.dart' as wp;
 
 class SingleWebhook extends ConsumerStatefulWidget {
@@ -127,11 +128,11 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
                   );
                   final result = await onPlayPressed(webhook);
 
-                  if (result) {}
-
-                  webhookNotifier.setSuccess(webhookId, result);
-                  webhookNotifier.setFailure(webhookId, !result);
-                  webhookNotifier.setLoading(webhookId, false);
+                  if (result) {
+                    webhookNotifier.setSuccess(webhookId, result);
+                  } else {
+                    webhookNotifier.setFailure(webhookId, result);
+                  }
                 },
                 icon: Builder(
                   builder: (context) {

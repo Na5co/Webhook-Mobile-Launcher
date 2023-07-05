@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
+import './send_request.dart';
+import './webhook_state.dart';
 
 final webHookBoxProvider =
     Provider<Box<dynamic>>((ref) => Hive.box('webhooks'));
@@ -34,46 +36,25 @@ final onPlayPressedProvider = Provider<Function(Map<String, dynamic>?)>((ref) {
     webhookStateNotifier.setFailure(webhookId, false); // Reset failure state
     webhookStateNotifier.setLoading(webhookId, false);
 
-    if (webhook != null) {
-      final String url = webhook['url'] as String;
-      if (url.isNotEmpty) {
-        try {
-          final dio = Dio();
-          final Response response = await dio.get(url);
-          print('URL: $url, Response: ${response.statusCode}]');
-
-          if (response.statusCode == 200 ||
-              response.statusCode == 201 ||
-              response.statusCode == 204) {
-            webhookStateNotifier.setLoading(webhookId, true);
-            webhookStateNotifier.setSuccess(
-                webhookId, true); // Set success state to true
-            return true; // Return true for success
-          } else {
-            webhookStateNotifier.setLoading(webhookId, false);
-            print('Request failed');
-            webhookStateNotifier.setFailure(
-                webhookId, true); // Set failure state to true
-            throw DioException(
-              requestOptions: RequestOptions(path: url),
-              error: 'Unexpected response code: ${response.statusCode}',
-              response: response,
-            );
-          }
-        } on DioException catch (error) {
-          // Handle request error
-          // Update the UI or perform other actions accordingly
-          print('Error occurred while making the request: $error');
-          rethrow; // Rethrow the error
-        }
-      } else {
-        print('Invalid URL');
-      }
-    } else {
+    if (webhook == null) {
       print('Invalid webhook');
+      webhookStateNotifier.setLoading(webhookId, false);
+      return false; // Return false for failure
     }
-    webhookStateNotifier.setLoading(webhookId, false);
-    return false; // Return false for failure
+
+    final String url = webhook['url'] as String;
+    final dioClient = DioClient();
+
+    try {
+      webhookStateNotifier.setLoading(webhookId, true);
+      await dioClient.getRequest(url);
+      webhookStateNotifier.setSuccess(webhookId, true);
+      return true;
+    } catch (error) {
+      print('Error occurred while making the request: $error');
+      webhookStateNotifier.setFailure(webhookId, true);
+      return false;
+    }
   };
 });
 
@@ -98,26 +79,6 @@ final webhookStateProvider =
     StateNotifierProvider<WebhookStateNotifier, Map<int, WebhookState>>((ref) {
   return WebhookStateNotifier();
 });
-
-class WebhookState {
-  final bool? isLoading;
-  final bool isSuccess;
-  final bool? isFailure;
-  final Map<String, dynamic>? webhook;
-  int? get id => webhook?['id'] as int?;
-
-  WebhookState({
-    this.isLoading = false,
-    this.isSuccess = false,
-    this.isFailure = false,
-    this.webhook,
-  });
-
-  @override
-  String toString() {
-    return 'WebhookState(isLoading: $isLoading, isSuccess: $isSuccess, isFailure: $isFailure)';
-  }
-}
 
 class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
   WebhookStateNotifier() : super({});
@@ -155,13 +116,15 @@ class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
   }
 
   void setSuccess(int webhookId, bool isSuccess) {
-    print('setting success for state $webhookId');
+    setLoading(webhookId, false);
+
+    print('setting success as: $isSuccess for state $webhookId');
 
     state = {
       ...state,
       webhookId: WebhookState(
-        isLoading: false,
-        isSuccess: true,
+        isLoading: state[webhookId]?.isFailure ?? false,
+        isSuccess: state[webhookId]?.isFailure ?? true,
         isFailure: state[webhookId]?.isFailure ?? false,
         webhook: state[webhookId]?.webhook,
       ),
@@ -171,6 +134,7 @@ class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
   }
 
   void setLoading(int webhookId, bool isLoading) {
+    print('setting  loading state as: `$isLoading` for state $webhookId');
     state = {
       ...state,
       webhookId: WebhookState(
@@ -184,12 +148,14 @@ class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
   }
 
   void setFailure(int webhookId, bool isFailure) {
+    print('setting failure state as: `$isFailure` for state $webhookId');
+    setLoading(webhookId, false);
     state = {
       ...state,
       webhookId: WebhookState(
-        isLoading: false,
-        isSuccess: false,
-        isFailure: true,
+        isLoading: state[webhookId]?.isFailure ?? false,
+        isSuccess: state[webhookId]?.isFailure ?? false,
+        isFailure: state[webhookId]?.isFailure ?? true,
         webhook: state[webhookId]?.webhook,
       ),
     };
