@@ -4,7 +4,7 @@ import 'dart:async';
 import '../list/ConfigurationPopupMenu.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/webhook_provider.dart';
-import '../../providers/shceduled_webhooks_provider.dart' as wp;
+import '../../providers/scheduled_webhooks_provider.dart' as wp;
 
 class SingleWebhook extends ConsumerStatefulWidget {
   final Map<String, dynamic>? webhook;
