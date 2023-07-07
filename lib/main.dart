@@ -79,17 +79,11 @@ class MyHomePage extends ConsumerWidget {
     const int maxCount = 5;
 
     final List<Widget> bottomBarPages = [
-      Scaffold(
-        appBar: AppBar(
-          title: const Text('Webhooks'),
-        ),
-        body: const WebHookListWidget(),
+      const Scaffold(
+        body: WebHookListWidget(),
       ),
-      Scaffold(
-        appBar: AppBar(
-          title: const Text('Create Webhook'),
-        ),
-        body: const CreateWebHookForm(),
+      const Scaffold(
+        body: CreateWebHookForm(),
       ),
     ];
 

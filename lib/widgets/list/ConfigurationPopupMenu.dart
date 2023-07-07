@@ -5,6 +5,8 @@ import '../../providers/scheduled_webhooks_provider.dart' as wp;
 import '../../providers/webhook_provider.dart';
 
 class ConfigurationPopupMenu extends ConsumerWidget {
+  const ConfigurationPopupMenu({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<String>(
