@@ -8,7 +8,7 @@ class WebHookTableDescription extends StatelessWidget {
   const WebHookTableDescription({
     Key? key,
     required this.text,
-    this.color = Colors.white,
+    this.color = const Color(0xFFCCCCCC),
     this.fontSize = 14,
   }) : super(key: key);
 
@@ -17,8 +17,8 @@ class WebHookTableDescription extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: 16.0),
       alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        border: Border(
+      decoration: BoxDecoration(
+        border: const Border(
           bottom: BorderSide(
             color: Colors.black,
             width: 1.0,

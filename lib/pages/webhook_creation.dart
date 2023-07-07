@@ -5,9 +5,7 @@ import '../providers/webhook_provider.dart'; // Import the provider file
 import '../widgets/form/webhook_text_field.dart';
 import '../widgets/form/create_webhook_button.dart';
 import '../providers/webhook_provider.dart' as wp;
-
-import '../widgets/webhook_table_description.dart';
-import '../widgets/webhook_table_title.dart';
+import '../widgets/CardTitleAndDescription.dart';
 
 class CreateWebHookForm extends ConsumerWidget {
   const CreateWebHookForm({Key? key}) : super(key: key);
@@ -27,21 +25,13 @@ class CreateWebHookForm extends ConsumerWidget {
     final urlValidator = ref.watch(urlValidatorProvider);
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.only(bottom: 16.0, top: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Center(
-            child: WebHookTableTitle(
-              text: "Create Webhook",
-            ),
-          ),
-          const Center(
-            child: WebHookTableDescription(
-              text: "Created Webhooks will be stored in the drawer.",
-              color: Colors.grey,
-              fontSize: 11,
-            ),
+          const WebhookCard(
+            titleText: 'Create Webhook',
+            descriptionText: 'Created Webhooks will be stored in the drawer.',
           ),
           const SizedBox(
             height: 16,
@@ -72,11 +62,11 @@ class CreateWebHookForm extends ConsumerWidget {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: Text('Invalid URL'),
-                    content: Text('Please enter a valid URL.'),
+                    title: const Text('Invalid URL'),
+                    content: const Text('Please enter a valid URL.'),
                     actions: [
                       TextButton(
-                        child: Text('OK'),
+                        child: const Text('OK'),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],

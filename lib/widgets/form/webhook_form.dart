@@ -54,7 +54,7 @@ class _BuildFormContent extends ConsumerWidget {
           const Center(
             child: WebHookTableDescription(
               text: "Create a new webhook",
-              color: Colors.purple,
+              color: Colors.blueGrey,
             ),
           ),
           WebHookTextField(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../HexColor.dart';
 
 class WebHookTableTitle extends StatelessWidget {
   final String text;
@@ -9,8 +10,8 @@ class WebHookTableTitle extends StatelessWidget {
   const WebHookTableTitle({
     Key? key,
     this.text = "Webhook List",
-    this.color = Colors.purple,
-    this.fontSize = 28,
+    this.color = const Color(0xFF333333),
+    this.fontSize = 32,
     this.fontWeight = FontWeight.bold,
   }) : super(key: key);
 

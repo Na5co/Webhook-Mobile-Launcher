@@ -21,8 +21,8 @@ class SingleWebhook extends ConsumerStatefulWidget {
 }
 
 class _SingleWebhookState extends ConsumerState<SingleWebhook> {
-  static const Color _defaultColor = Colors.black;
-  Color containerColor = Colors.grey;
+  static const Color _defaultColor = Colors.green;
+  Color containerColor = Colors.white;
 
   void handlePlayButtonPressed() async {
     final webhookId = widget.webhook!['id'] as int;

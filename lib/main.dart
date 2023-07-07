@@ -1,5 +1,5 @@
 import 'dart:developer';
-
+import 'GradientBackground.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'pages/webhook_creation.dart';
@@ -79,13 +79,22 @@ class MyHomePage extends ConsumerWidget {
     const int maxCount = 5;
 
     final List<Widget> bottomBarPages = [
-      const Scaffold(
+      Scaffold(
+        backgroundColor: Colors.transparent, // Set the desired dark grey color
+
         resizeToAvoidBottomInset: false,
-        body: WebHookListWidget(),
+        body: GradientBackground(colors: [
+          Colors.blue.withOpacity(0.5),
+          Colors.deepPurple.withOpacity(1)
+        ], child: const WebHookListWidget()),
       ),
-      const Scaffold(
+      Scaffold(
+        backgroundColor: Colors.grey[400], // Set the desired dark grey color
         resizeToAvoidBottomInset: false,
-        body: CreateWebHookForm(),
+        body: GradientBackground(colors: [
+          Colors.blue.withOpacity(0.5),
+          Colors.deepPurple.withOpacity(1)
+        ], child: const CreateWebHookForm()),
       ),
     ];
 

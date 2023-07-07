@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wh_launcher/widgets/CardTitleAndDescription.dart';
 import '../providers/webhook_provider.dart';
 import '../widgets/list/webhook_single_item.dart';
-import '../widgets/webhook_table_title.dart';
-import '../widgets/webhook_table_description.dart';
+
 import '../providers/webhook_provider.dart' as wp;
 
 class WebHookListWidget extends ConsumerWidget {
@@ -12,10 +12,10 @@ class WebHookListWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final webHooks = ref.watch(wp.webHooksProvider);
-    final onPlayPressed = ref.read(onPlayPressedProvider);
+    final onPlayPressed = ref.read(wp.onPlayPressedProvider);
 
     void onDeletePressed(int index) {
-      final onDeletePressedFn = ref.read(onDeletePressedProvider);
+      final onDeletePressedFn = ref.read(wp.onDeletePressedProvider);
       print('deleting webhook at index: $index');
       onDeletePressedFn(index);
     }
@@ -42,11 +42,10 @@ class WebHookListWidget extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    WebHookTableTitle(text: 'Webhook List'),
-                    WebHookTableDescription(
-                      text: 'Created Webhooks will be stored in the drawer.',
-                      color: Colors.grey,
-                      fontSize: 12,
+                    WebhookCard(
+                      titleText: 'Webhook List',
+                      descriptionText:
+                          'Created Webhooks will be stored in the drawer.',
                     ),
                     Divider(),
                   ],
