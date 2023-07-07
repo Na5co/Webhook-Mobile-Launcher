@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import '../list/ConfigurationPopupMenu.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../list/ConfigurationPopupMenu.dart';
 import '../../providers/webhook_provider.dart';
-import '../../providers/scheduled_webhooks_provider.dart' as wp;
 import 'GlassContainer.dart';
-import './DateTimePicker.dart';
 
 class SingleWebhook extends ConsumerStatefulWidget {
   final Map<String, dynamic>? webhook;
@@ -27,6 +24,25 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
   static const Color _defaultColor = Colors.black;
   Color containerColor = Colors.grey;
 
+  void handlePlayButtonPressed() async {
+    final webhookId = widget.webhook!['id'] as int;
+    final webhookNotifier = ref.read(webhookStateProvider.notifier);
+
+    webhookNotifier.setLoading(webhookId, true);
+
+    final result = await widget.onPlayPressed(widget.webhook);
+
+    if (result) {
+      webhookNotifier.setSuccess(webhookId, result);
+    } else {
+      webhookNotifier.setFailure(webhookId, result);
+    }
+
+    setState(() {
+      containerColor = result ? Colors.green : Colors.red;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final webhook = ref.watch(webHooksProvider).firstWhere(
@@ -34,7 +50,6 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
           orElse: () => {},
         );
 
-    final onPlayPressed = ref.watch(onPlayPressedProvider);
     final onDeletePressed = ref.watch(onDeletePressedProvider);
 
     return Padding(
@@ -54,7 +69,7 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
               title: Padding(
                 padding: const EdgeInsets.only(bottom: 4, left: 16, right: 16),
                 child: Text(
-                  webhook['name'] as String,
+                  webhook['name'] as String? ?? '',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -72,24 +87,7 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
                 spacing: 8,
                 children: [
                   IconButton(
-                    onPressed: () async {
-                      final webhookId = widget.webhook!['id'] as int;
-                      final webhookNotifier =
-                          ref.read(webhookStateProvider.notifier);
-
-                      webhookNotifier.setLoading(webhookId, true);
-
-                      final result = await onPlayPressed(webhook);
-
-                      if (result) {
-                        webhookNotifier.setSuccess(webhookId, result);
-                      } else {
-                        webhookNotifier.setFailure(webhookId, result);
-                      }
-                      setState(() {
-                        containerColor = result ? Colors.green : Colors.red;
-                      });
-                    },
+                    onPressed: handlePlayButtonPressed,
                     icon: Builder(
                       builder: (context) {
                         final webhookId = widget.webhook?['id'] as int?;
@@ -121,10 +119,7 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
                     icon: const Icon(Icons.delete),
                     color: Colors.red,
                   ),
-                  ConfigurationPopupMenu(
-                    onConfigurePressed: (_) =>
-                        _openConfigurationMenu(context, webhook),
-                  ),
+                  ConfigurationPopupMenu(),
                 ],
               ),
             ),
@@ -132,27 +127,5 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
         },
       ),
     );
-  }
-
-  void _openConfigurationMenu(
-      BuildContext context, Map<String, dynamic> webhook) async {
-    final DateTime? pickedDateTime = await DateTimePicker.pickDateTime(context);
-    if (pickedDateTime != null) {
-      final String name = webhook['name'] is String ? webhook['name'] : '';
-      final String url = webhook['url'] is String ? webhook['url'] : '';
-
-      final newWebhook = <String, dynamic>{
-        'name': name,
-        'url': url,
-        'scheduledDateTime': pickedDateTime.toIso8601String(),
-      };
-
-      ref
-          .read(wp.scheduledWebhooksProvider.notifier)
-          .addScheduledWebhook(newWebhook);
-
-      final box = ref.read(wp.scheduledWebhooksBoxProvider).values.toList();
-      print(box);
-    }
   }
 }

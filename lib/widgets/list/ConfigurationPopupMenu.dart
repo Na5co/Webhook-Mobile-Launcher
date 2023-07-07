@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import './DateTimePicker.dart';
+import '../../providers/scheduled_webhooks_provider.dart' as wp;
+import '../../providers/webhook_provider.dart';
 
-class ConfigurationPopupMenu extends StatelessWidget {
-  final void Function(BuildContext) onConfigurePressed; // Updated signature
-
-  const ConfigurationPopupMenu({
-    Key? key,
-    required this.onConfigurePressed,
-  }) : super(key: key);
-
+class ConfigurationPopupMenu extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<String>(
       itemBuilder: (BuildContext context) {
         return <PopupMenuEntry<String>>[
@@ -24,7 +21,15 @@ class ConfigurationPopupMenu extends StatelessWidget {
       },
       onSelected: (value) {
         if (value == 'configure') {
-          onConfigurePressed(context); // Pass the BuildContext argument
+          final webhook = ref.watch(webHooksProvider).firstWhere(
+                (webhook) => webhook['id'] == webhook?['id'],
+                orElse: () => {},
+              );
+          _openConfigurationMenu(
+            context,
+            ref,
+            webhook,
+          ); // Pass both BuildContext and ref
         }
       },
       icon: const Icon(Icons.timer),
@@ -34,5 +39,27 @@ class ConfigurationPopupMenu extends StatelessWidget {
       ),
       offset: const Offset(0, 40), // Adjust the offset as needed
     );
+  }
+}
+
+void _openConfigurationMenu(
+    BuildContext context, WidgetRef ref, Map<String, dynamic> webhook) async {
+  final DateTime? pickedDateTime = await DateTimePicker.pickDateTime(context);
+  if (pickedDateTime != null) {
+    final String name = webhook['name'] is String ? webhook['name'] : '';
+    final String url = webhook['url'] is String ? webhook['url'] : '';
+
+    final newWebhook = <String, dynamic>{
+      'name': name,
+      'url': url,
+      'scheduledDateTime': pickedDateTime.toIso8601String(),
+    };
+
+    ref
+        .read(wp.scheduledWebhooksProvider.notifier)
+        .addScheduledWebhook(newWebhook);
+
+    final box = ref.read(wp.scheduledWebhooksBoxProvider).values.toList();
+    print(box);
   }
 }
