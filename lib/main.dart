@@ -80,9 +80,11 @@ class MyHomePage extends ConsumerWidget {
 
     final List<Widget> bottomBarPages = [
       const Scaffold(
+        resizeToAvoidBottomInset: false,
         body: WebHookListWidget(),
       ),
       const Scaffold(
+        resizeToAvoidBottomInset: false,
         body: CreateWebHookForm(),
       ),
     ];

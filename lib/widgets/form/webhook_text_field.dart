@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class WebHookTextField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
+  final Icon? icon;
   final FormFieldValidator<String>? validator; // Add the validator parameter
 
   const WebHookTextField({
     super.key,
     required this.controller,
     required this.labelText,
+    this.icon,
     this.validator, // Accept the validator parameter in the constructor
   });
 
@@ -17,6 +19,7 @@ class WebHookTextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
+        prefixIcon: icon,
         labelText: labelText,
       ),
       validator: validator, // Use the provided validator

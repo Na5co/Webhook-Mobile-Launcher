@@ -49,6 +49,7 @@ class CreateWebHookForm extends ConsumerWidget {
           WebHookTextField(
             controller: urlController,
             labelText: 'Webhook URL',
+            icon: const Icon(Icons.webhook),
             validator: (value) =>
                 urlValidator(value ?? '') ? null : 'Invalid URL',
           ),
@@ -56,6 +57,7 @@ class CreateWebHookForm extends ConsumerWidget {
             padding: EdgeInsets.symmetric(vertical: verticalSpacing),
             child: WebHookTextField(
               controller: nameController,
+              icon: const Icon(Icons.link),
               labelText: 'Webhook Name',
             ),
           ),
