@@ -35,7 +35,9 @@ class ScheduledWebhooksNotifier
       print(newWebhook);
       await _scheduledWebhooksBox.add(newWebhook);
       loadData();
-    } catch (error) {}
+    } catch (error) {
+      throw ('Coulding create a scheduled webhook $error');
+    }
   }
 
   // Implement other methods such as updateScheduledDateTime and deleteWebhook

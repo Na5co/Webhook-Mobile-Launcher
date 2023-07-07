@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
 import './send_request.dart';
 import './webhook_state.dart';
@@ -31,15 +29,15 @@ final onPlayPressedProvider = Provider<Function(Map<String, dynamic>?)>((ref) {
   return (Map<String, dynamic>? webhook) async {
     final webhookStateNotifier = ref.read(webhookStateProvider.notifier);
     final int webhookId = webhook?['id'];
+    print('Play pressed for webhook $webhookId');
 
     webhookStateNotifier.setSuccess(webhookId, false); // Reset success state
     webhookStateNotifier.setFailure(webhookId, false); // Reset failure state
-    webhookStateNotifier.setLoading(webhookId, false);
+    webhookStateNotifier.setLoading(webhookId, true);
 
     if (webhook == null) {
-      print('Invalid webhook');
       webhookStateNotifier.setLoading(webhookId, false);
-      return false; // Return false for failure
+      return false;
     }
 
     final String url = webhook['url'] as String;
@@ -59,7 +57,6 @@ final onPlayPressedProvider = Provider<Function(Map<String, dynamic>?)>((ref) {
 });
 
 final urlValidatorProvider = Provider<bool Function(String)>((ref) {
-  print('URL validator provider called');
   final webHooks = ref.watch(webHooksProvider.notifier);
 
   return (String url) {
@@ -84,19 +81,14 @@ class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
   WebhookStateNotifier() : super({});
 
   WebhookState? getWebhookState(int? webhookId) {
-    print('Getting webhook state for $webhookId');
-    print(state);
-
     if (webhookId != null && state.containsKey(webhookId)) {
       final webhookState = state[webhookId];
-      print('Webhook state found: $webhookState');
 
       if (webhookState != null) {
         return webhookState;
       }
     }
 
-    print('Webhook state not found');
     return null;
   }
 
@@ -118,8 +110,6 @@ class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
   void setSuccess(int webhookId, bool isSuccess) {
     setLoading(webhookId, false);
 
-    print('setting success as: $isSuccess for state $webhookId');
-
     state = {
       ...state,
       webhookId: WebhookState(
@@ -129,12 +119,9 @@ class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
         webhook: state[webhookId]?.webhook,
       ),
     };
-
-    print('state is now $state');
   }
 
   void setLoading(int webhookId, bool isLoading) {
-    print('setting  loading state as: `$isLoading` for state $webhookId');
     state = {
       ...state,
       webhookId: WebhookState(
@@ -148,7 +135,6 @@ class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
   }
 
   void setFailure(int webhookId, bool isFailure) {
-    print('setting failure state as: `$isFailure` for state $webhookId');
     setLoading(webhookId, false);
     state = {
       ...state,

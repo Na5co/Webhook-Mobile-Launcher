@@ -13,11 +13,11 @@ class ConfigurationPopupMenu extends StatelessWidget {
     return PopupMenuButton<String>(
       itemBuilder: (BuildContext context) {
         return <PopupMenuEntry<String>>[
-          PopupMenuItem<String>(
+          const PopupMenuItem<String>(
             value: 'configure',
             child: ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Configure'),
+              leading: Icon(Icons.settings),
+              title: Text('Configure'),
             ),
           ),
         ];

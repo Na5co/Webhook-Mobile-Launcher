@@ -8,6 +8,7 @@ class DioClient {
   Future<Response> getRequest(String url) async {
     try {
       final response = await _dio.get(url);
+      print('Status CODE IS : ${response.statusCode}');
       return response;
     } on DioException catch (error) {
       throw DioException(
