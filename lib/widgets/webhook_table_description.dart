@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter/material.dart';
-
 class WebHookTableDescription extends StatelessWidget {
   final String text;
   final Color color;

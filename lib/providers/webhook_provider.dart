@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:dio/dio.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
+import './send_request.dart';
+import './webhook_state.dart';
 
 final webHookBoxProvider =
     Provider<Box<dynamic>>((ref) => Hive.box('webhooks'));
@@ -13,58 +14,49 @@ final webHooksProvider =
 });
 
 final onDeletePressedProvider = Provider<Function(int)>((ref) {
+  print('delete pressed');
   return (int index) {
-    final webHooks = ref.watch(webHooksProvider);
-    if (index >= 0 && index < webHooks.length) {
-      ref.read(webHooksProvider.notifier).deleteWebHook(index);
-      print("Selected webhook index: $index");
-    } else {
-      print("Invalid index: $index");
-      print("WebHooks length: ${webHooks.length}");
-    }
+    final webHooksNotifier = ref.read(webHooksProvider.notifier);
+    final webHooks = webHooksNotifier.state;
+    webHooksNotifier.deleteWebHook(index);
   };
 });
 
+final selectedDateTimeProvider =
+    StateProvider<DateTime>((ref) => DateTime.now());
+
 final onPlayPressedProvider = Provider<Function(Map<String, dynamic>?)>((ref) {
   return (Map<String, dynamic>? webhook) async {
-    if (webhook != null) {
-      final String url = webhook['url'] as String;
-      if (url.isNotEmpty) {
-        Response<dynamic>? response; // Declare response variable
-        try {
-          final dio = Dio();
-          response = await dio.get(url); // Assign value to response
-          print('URL: $url, Response: $response');
+    final webhookStateNotifier = ref.read(webhookStateProvider.notifier);
+    final int webhookId = webhook?['id'];
+    print('Play pressed for webhook $webhookId');
 
-          if (response.statusCode == 200 ||
-              response.statusCode == 201 ||
-              response.statusCode == 204) {
-            // Successful response, update the UI accordingly
-            print('Request successful');
-          } else {
-            print('Request failed');
-            throw DioException(
-              requestOptions: RequestOptions(path: url),
-              error: 'Unexpected response code: ${response.statusCode}',
-              response: response,
-            );
-          }
-        } catch (error) {
-          // Handle request error
-          print('Error occurred while making the request: $error');
-          throw error; // Rethrow the error
-        }
-      } else {
-        print('Invalid URL');
-      }
-    } else {
-      print('Invalid webhook');
+    webhookStateNotifier.setSuccess(webhookId, false); // Reset success state
+    webhookStateNotifier.setFailure(webhookId, false); // Reset failure state
+    webhookStateNotifier.setLoading(webhookId, true);
+
+    if (webhook == null) {
+      webhookStateNotifier.setLoading(webhookId, false);
+      return false;
+    }
+
+    final String url = webhook['url'] as String;
+    final dioClient = DioClient();
+
+    try {
+      webhookStateNotifier.setLoading(webhookId, true);
+      await dioClient.getRequest(url);
+      webhookStateNotifier.setSuccess(webhookId, true);
+      return true;
+    } catch (error) {
+      print('Error occurred while making the request: $error');
+      webhookStateNotifier.setFailure(webhookId, true);
+      return false;
     }
   };
 });
 
 final urlValidatorProvider = Provider<bool Function(String)>((ref) {
-  print('URL validator provider called');
   final webHooks = ref.watch(webHooksProvider.notifier);
 
   return (String url) {
@@ -80,6 +72,82 @@ final urlValidatorProvider = Provider<bool Function(String)>((ref) {
   };
 });
 
+final webhookStateProvider =
+    StateNotifierProvider<WebhookStateNotifier, Map<int, WebhookState>>((ref) {
+  return WebhookStateNotifier();
+});
+
+class WebhookStateNotifier extends StateNotifier<Map<int, WebhookState>> {
+  WebhookStateNotifier() : super({});
+
+  WebhookState? getWebhookState(int? webhookId) {
+    if (webhookId != null && state.containsKey(webhookId)) {
+      final webhookState = state[webhookId];
+
+      if (webhookState != null) {
+        return webhookState;
+      }
+    }
+
+    return null;
+  }
+
+  bool? isSuccess(int? webhookId) {
+    final webhookState = getWebhookState(webhookId);
+    return webhookState?.isSuccess;
+  }
+
+  bool? isLoading(int? webhookId) {
+    final webhookState = getWebhookState(webhookId);
+    return webhookState?.isLoading;
+  }
+
+  bool? isFailure(int? webhookId) {
+    final webhookState = getWebhookState(webhookId);
+    return webhookState?.isFailure;
+  }
+
+  void setSuccess(int webhookId, bool isSuccess) {
+    setLoading(webhookId, false);
+
+    state = {
+      ...state,
+      webhookId: WebhookState(
+        isLoading: state[webhookId]?.isFailure ?? false,
+        isSuccess: state[webhookId]?.isFailure ?? true,
+        isFailure: state[webhookId]?.isFailure ?? false,
+        webhook: state[webhookId]?.webhook,
+      ),
+    };
+  }
+
+  void setLoading(int webhookId, bool isLoading) {
+    state = {
+      ...state,
+      webhookId: WebhookState(
+        isLoading: isLoading,
+        isSuccess: state[webhookId]?.isSuccess ?? false,
+        isFailure: state[webhookId]?.isFailure ?? false,
+        webhook: state[webhookId]?.webhook,
+      ),
+    };
+    print('state is now $state');
+  }
+
+  void setFailure(int webhookId, bool isFailure) {
+    setLoading(webhookId, false);
+    state = {
+      ...state,
+      webhookId: WebhookState(
+        isLoading: state[webhookId]?.isFailure ?? false,
+        isSuccess: state[webhookId]?.isFailure ?? false,
+        isFailure: state[webhookId]?.isFailure ?? true,
+        webhook: state[webhookId]?.webhook,
+      ),
+    };
+  }
+}
+
 class WebHooksNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   final Box<dynamic> _webHookBox;
 
@@ -88,24 +156,58 @@ class WebHooksNotifier extends StateNotifier<List<Map<String, dynamic>>> {
   }
 
   Future<void> loadData() async {
-    final data = _webHookBox.keys.map((key) {
-      final value = _webHookBox.get(key);
+    final data = _webHookBox.values.map((value) {
+      final webHook = Map<String, dynamic>.from(value);
       return {
-        'name': value['name'],
-        'url': value['url'],
+        'id': webHook['id'],
+        'name': webHook['name'],
+        'url': webHook['url'],
+        'scheduledDateTime': webHook['scheduledDateTime'],
       };
     }).toList();
-
     state = data;
   }
 
   Future<void> addWebHook(Map<String, dynamic> newItem) async {
-    await _webHookBox.add(newItem);
+    final int newId = Uuid().hashCode;
+
+    final newWebHook = {
+      'id': newId,
+      'name': newItem['name'],
+      'url': newItem['url'],
+      'scheduledDateTime': newItem['scheduledDateTime'],
+    };
+
+    await _webHookBox.add(newWebHook);
     loadData();
   }
 
-  Future<void> deleteWebHook(int index) async {
-    await _webHookBox.deleteAt(index);
-    loadData();
+  Future<void> updateScheduledDateTime({
+    required int index,
+    required DateTime dateTime,
+  }) async {
+    if (index >= 0 && index < state.length) {
+      final webHook = Map<String, dynamic>.from(state[index]);
+      final updatedWebHook = {
+        ...webHook,
+        'scheduledDateTime': dateTime.toIso8601String(),
+      };
+      await _webHookBox.putAt(index, updatedWebHook);
+      loadData();
+    }
+  }
+
+  Future<void> deleteWebHook(int id) async {
+    final webHookFound = _webHookBox.values.firstWhere(
+      (value) => value['id'] == id,
+      orElse: () => null,
+    );
+    if (webHookFound != null) {
+      final index = state.indexWhere((webHook) => webHook['id'] == id);
+      if (index != -1) {
+        await _webHookBox.deleteAt(index);
+        loadData();
+      }
+    }
   }
 }

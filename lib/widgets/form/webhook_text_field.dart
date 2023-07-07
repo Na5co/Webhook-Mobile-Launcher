@@ -6,6 +6,7 @@ class WebHookTextField extends StatelessWidget {
   final FormFieldValidator<String>? validator; // Add the validator parameter
 
   const WebHookTextField({
+    super.key,
     required this.controller,
     required this.labelText,
     this.validator, // Accept the validator parameter in the constructor
@@ -13,8 +14,6 @@ class WebHookTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String value = controller.text;
-
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(

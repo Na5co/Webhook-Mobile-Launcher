@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'pages/webhook_creation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'widgets/list/webhook_single_item.dart';
 import 'pages/webhook_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox('webhooks');
+  await Hive.openBox<Map<String, dynamic>>('scheduled_webhooks');
 
   runApp(
     const ProviderScope(
@@ -22,6 +22,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
@@ -54,7 +55,7 @@ final webHooksProvider = Provider<List<Map<String, dynamic>>>((ref) {
   final convertedWebHooks = webHooks
       .map((item) {
         if (item != null && item is Map<dynamic, dynamic>) {
-          return Map<String, dynamic>.from(item);
+          return Map<String, dynamic>.from(item as Map<dynamic, dynamic>);
         }
         return null;
       })
@@ -68,7 +69,7 @@ final notchBottomBarControllerProvider = Provider<NotchBottomBarController>(
     (ref) => NotchBottomBarController(index: 0));
 
 class MyHomePage extends ConsumerWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,7 +83,7 @@ class MyHomePage extends ConsumerWidget {
         appBar: AppBar(
           title: const Text('Webhooks'),
         ),
-        body: WebHookListWidget(),
+        body: const WebHookListWidget(),
       ),
       Scaffold(
         appBar: AppBar(
@@ -103,7 +104,7 @@ class MyHomePage extends ConsumerWidget {
         },
       ),
       extendBody: true,
-      bottomNavigationBar: (bottomBarPages.length <= maxCount)
+      bottomNavigationBar: bottomBarPages.length <= maxCount
           ? AnimatedNotchBottomBar(
               notchBottomBarController: _controller,
               color: Colors.white,

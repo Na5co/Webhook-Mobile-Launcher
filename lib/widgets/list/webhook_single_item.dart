@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:glassmorphism/glassmorphism.dart';
-import 'dart:async';
-import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../list/ConfigurationPopupMenu.dart';
+import '../../providers/webhook_provider.dart';
+import 'GlassContainer.dart';
 
-class SingleWebhook extends StatefulWidget {
+class SingleWebhook extends ConsumerStatefulWidget {
   final Map<String, dynamic>? webhook;
-  final Function(Map<String, dynamic>) onPlayPressed;
+  final Function(Map<String, dynamic>?) onPlayPressed;
   final Function(int) onDeletePressed;
 
-  SingleWebhook({
+  const SingleWebhook({
     Key? key,
     required this.webhook,
     required this.onPlayPressed,
@@ -19,131 +20,111 @@ class SingleWebhook extends StatefulWidget {
   _SingleWebhookState createState() => _SingleWebhookState();
 }
 
-class _SingleWebhookState extends State<SingleWebhook> {
-  bool isLoading = false;
-  bool isSuccess = false;
-  bool isFailure = false;
+class _SingleWebhookState extends ConsumerState<SingleWebhook> {
+  static const Color _defaultColor = Colors.black;
+  Color containerColor = Colors.grey;
+
+  void handlePlayButtonPressed() async {
+    final webhookId = widget.webhook!['id'] as int;
+    final webhookNotifier = ref.read(webhookStateProvider.notifier);
+
+    webhookNotifier.setLoading(webhookId, true);
+
+    final result = await widget.onPlayPressed(widget.webhook);
+
+    if (result) {
+      webhookNotifier.setSuccess(webhookId, result);
+    } else {
+      webhookNotifier.setFailure(webhookId, result);
+    }
+
+    setState(() {
+      containerColor = result ? Colors.green : Colors.red;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final webhook = ref.watch(webHooksProvider).firstWhere(
+          (webhook) => webhook['id'] == widget.webhook?['id'],
+          orElse: () => {},
+        );
+
+    final onDeletePressed = ref.watch(onDeletePressedProvider);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: GlassmorphicContainer(
-        border: 2,
-        width: double.infinity,
-        height: 100,
-        borderRadius: 8,
-        blur: 20,
-        alignment: Alignment.center,
-        linearGradient: isSuccess
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.greenAccent.withOpacity(0.2),
-                  Colors.lightGreenAccent.withOpacity(0.1),
-                ],
-                stops: const [0.1, 1],
-              )
-            : isFailure
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.redAccent.withOpacity(0.2),
-                      Colors.deepOrangeAccent.withOpacity(0.1),
-                    ],
-                    stops: const [0.1, 1],
-                  )
-                : LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.purpleAccent.withOpacity(0.2),
-                      Colors.deepPurpleAccent.withOpacity(0.1),
-                    ],
-                    stops: const [0.1, 1],
+      child: Consumer(
+        builder: (context, watch, _) {
+          return GlassContainer(
+            color1: containerColor.withOpacity(0.1),
+            color2: containerColor.withOpacity(1),
+            colorChangeCallback: (Color color) {
+              setState(() {
+                containerColor = color;
+              });
+            },
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Padding(
+                padding: const EdgeInsets.only(bottom: 4, left: 16, right: 16),
+                child: Text(
+                  webhook['name'] as String? ?? '',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-        borderGradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.grey.withOpacity(0.5),
-            Colors.grey.withOpacity(0.2),
-          ],
-        ),
-        child: ListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Padding(
-            padding: const EdgeInsets.only(bottom: 4, left: 16, right: 16),
-            child: Text(
-              widget.webhook?['name'] as String? ?? '',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16),
-            child: Text(
-              widget.webhook?['url'] as String? ?? '',
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
-          trailing: Wrap(
-            spacing: 8,
-            children: [
-              isLoading
-                  ? CircularProgressIndicator()
-                  : IconButton(
-                      onPressed: () async {
-                        if (widget.webhook != null) {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          try {
-                            await widget.onPlayPressed(widget.webhook!);
-                            setState(() {
-                              isLoading = false;
-                              isSuccess = true;
-                              isFailure = false;
-                            });
-                            Timer(const Duration(seconds: 3), () {
-                              setState(() {
-                                isSuccess = false;
-                              });
-                            });
-                          } catch (e) {
-                            print('Error: $e');
-                            setState(() {
-                              isLoading = false;
-                              isSuccess = false;
-                              isFailure = true;
-                            });
-                            Timer(const Duration(seconds: 3), () {
-                              setState(() {
-                                isFailure = false;
-                              });
-                            });
-                          }
+              subtitle: Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: Text(
+                  webhook['url'] as String? ?? '',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+              trailing: Wrap(
+                spacing: 8,
+                children: [
+                  IconButton(
+                    onPressed: handlePlayButtonPressed,
+                    icon: Builder(
+                      builder: (context) {
+                        final webhookId = widget.webhook?['id'] as int?;
+                        final webhookNotifier =
+                            ref.read(webhookStateProvider.notifier);
+                        final webhookState =
+                            webhookNotifier.getWebhookState(webhookId);
+
+                        if (webhookState?.isLoading == true) {
+                          return const CircularProgressIndicator();
+                        } else {
+                          return Icon(
+                            Icons.play_circle_fill_sharp,
+                            color: webhookState?.isSuccess ?? false
+                                ? containerColor
+                                : _defaultColor,
+                          );
                         }
                       },
-                      icon: Icon(
-                        Icons.play_circle_fill_sharp,
-                        color: Colors.green,
-                      ),
                     ),
-              IconButton(
-                onPressed: () {
-                  widget.onDeletePressed(widget.webhook?['id'] as int? ?? 0);
-                },
-                icon: Icon(Icons.delete),
-                color: Colors.red,
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      final webhookId = webhook['id'] as int?;
+                      if (webhookId != null) {
+                        onDeletePressed(webhookId);
+                      }
+                    },
+                    icon: const Icon(Icons.delete),
+                    color: Colors.red,
+                  ),
+                  ConfigurationPopupMenu(),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
