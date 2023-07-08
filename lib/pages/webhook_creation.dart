@@ -51,29 +51,32 @@ class CreateWebHookForm extends ConsumerWidget {
               labelText: 'Webhook Name',
             ),
           ),
-          CreateWebHookButton(
-            onPressed: () {
-              if (urlValidator(urlController.text)) {
-                _createWh({
-                  'name': nameController.text,
-                  'url': urlController.text,
-                });
-              } else {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Invalid URL'),
-                    content: const Text('Please enter a valid URL.'),
-                    actions: [
-                      TextButton(
-                        child: const Text('OK'),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
+          Container(
+            width: 20,
+            child: CreateWebHookButton(
+              onPressed: () {
+                if (urlValidator(urlController.text)) {
+                  _createWh({
+                    'name': nameController.text,
+                    'url': urlController.text,
+                  });
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Invalid URL'),
+                      content: const Text('Please enter a valid URL.'),
+                      actions: [
+                        TextButton(
+                          child: const Text('OK'),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
           ),
           if (webHooks.isNotEmpty)
             Padding(
@@ -90,7 +93,7 @@ class CreateWebHookForm extends ConsumerWidget {
               '© 2023 Webhook Launcher is open source, find it on GitHub',
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey,
+                color: Colors.white,
               ),
               textAlign: TextAlign.center,
             ),

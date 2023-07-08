@@ -34,8 +34,8 @@ class ConfigurationPopupMenu extends ConsumerWidget {
           ); // Pass both BuildContext and ref
         }
       },
-      icon: const Icon(Icons.timer),
-      color: Colors.orange,
+      icon: const Icon(Icons.timer_outlined),
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),

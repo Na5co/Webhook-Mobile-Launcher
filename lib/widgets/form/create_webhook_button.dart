@@ -9,16 +9,24 @@ class CreateWebHookButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      child: Text('Create Webhook'),
-      style: ElevatedButton.styleFrom(
-        primary: Colors.purple, // Button background color
-        onPrimary: Colors.white, // Button text color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Rounded corners
+    return FractionallySizedBox(
+      widthFactor: 0.7,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(
+          'Create Webhook',
+          style: TextStyle(fontSize: 14),
         ),
-        padding: const EdgeInsets.all(16), // Button padding
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.grey[200], // Adjust the base color
+          onPrimary: Colors.black, // Button text color
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          elevation: 1.5, // Adjust the elevation
+          shadowColor: Colors.grey[300], // Adjust the shadow color
+          padding: const EdgeInsets.all(12),
+        ),
       ),
     );
   }

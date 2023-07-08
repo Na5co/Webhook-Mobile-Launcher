@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/webhook_table_title.dart';
-import '../widgets/webhook_table_description.dart';
 
 class WebhookCard extends StatelessWidget {
   final String titleText;
@@ -14,21 +12,42 @@ class WebhookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white.withOpacity(0.7),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
+        color: Colors.grey.shade200,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            offset: Offset(0.3, 0.3),
+            blurRadius: 2,
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            WebHookTableTitle(text: titleText),
-            WebHookTableDescription(
-              text: descriptionText,
-              color: Colors.grey,
-              fontSize: 12,
+            Text(
+              titleText,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12),
+            Text(
+              descriptionText,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

@@ -150,6 +150,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_inset_box_shadow:
+    dependency: "direct main"
+    description:
+      name: flutter_inset_box_shadow
+      sha256: "0b1930ed5f4ad84b11b41dda907fbc5d4c12929a4c51455c626e5937b47ffb93"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -158,6 +166,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  flutter_neumorphic:
+    dependency: "direct main"
+    description:
+      name: flutter_neumorphic
+      sha256: "02606d937a3ceaa497b8a7c25f3efa95188bf93d77ebf0bd6552e432db4c2ec6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -344,6 +360,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  neumorphic_button:
+    dependency: "direct main"
+    description:
+      name: neumorphic_button
+      sha256: "6ebc849871592e4081fb80cddad35551142e1ca0a50703136d5b2f4422ffe12f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1+2"
   path:
     dependency: transitive
     description:
