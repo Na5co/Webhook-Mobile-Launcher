@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'configuration_pop_up_menu.dart';
 import '../../providers/webhook_provider.dart';
+import '../../providers/scheduled_webhooks_provider.dart' as swp;
 import 'GlassContainer.dart';
 import './NeumorphicIconButton.dart';
 
@@ -50,6 +51,14 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
           (webhook) => webhook['id'] == widget.webhook?['id'],
           orElse: () => {},
         );
+
+    print('webhook: $webhook');
+    final scheduledWebhook = ref
+        .watch(swp.scheduledWebHooksProvider)
+        .firstWhere((webhook) => webhook['id'] == widget.webhook?['id'],
+            orElse: () => {});
+
+    print('scheduledWebhook: $scheduledWebhook');
 
     final onDeletePressed = ref.watch(onDeletePressedProvider);
 

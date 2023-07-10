@@ -182,7 +182,6 @@ class WebHooksNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     final webHook = state.firstWhere(
       (webHook) => webHook['id'] == id,
     );
-    print('webHook found $webHook');
     return webHook;
   }
 

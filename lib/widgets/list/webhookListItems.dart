@@ -1,5 +1,5 @@
-import './webhook_single_item.dart';
 import 'package:flutter/material.dart';
+import './webhook_single_item.dart';
 
 class WebHookListItems extends StatelessWidget {
   final List<Map<String, dynamic>> webHooks;
@@ -15,6 +15,15 @@ class WebHookListItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (webHooks.isEmpty) {
+      return const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Center(child: Text('No webhooks created yet')),
+        ),
+      );
+    }
+
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) {

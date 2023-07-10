@@ -60,7 +60,7 @@ void _openConfigurationMenu(
       'scheduledDateTime': scheduledDateTime,
     };
     ref
-        .read(wp.scheduledWebhooksProvider.notifier)
+        .read(wp.scheduledWebHooksProvider.notifier)
         .addScheduledWebhook(newWebhook);
   }
 }

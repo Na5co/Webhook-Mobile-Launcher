@@ -2,26 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-final scheduledWebhooksBoxProvider = Provider<Box<Map<String, dynamic>>>(
-  (ref) => Hive.box<Map<String, dynamic>>('scheduled_webhooks'),
-);
+final scheduledWebHookBoxProvider =
+    Provider<Box<dynamic>>((ref) => Hive.box('webhooks'));
 
-final scheduledWebhooksProvider = StateNotifierProvider<
+final scheduledWebHooksProvider = StateNotifierProvider<
     ScheduledWebhooksNotifier, List<Map<String, dynamic>>>((ref) {
-  final box = ref.watch(scheduledWebhooksBoxProvider);
+  final box = ref.watch(scheduledWebHookBoxProvider);
   return ScheduledWebhooksNotifier(box);
-});
-
-final addScheduledWebhookProvider =
-    FutureProvider.family<void, Map<String, dynamic>>((ref, webhook) async {
-  final scheduledWebhooksNotifier =
-      ref.read(scheduledWebhooksProvider.notifier);
-  await scheduledWebhooksNotifier.addScheduledWebhook(webhook);
 });
 
 class ScheduledWebhooksNotifier
     extends StateNotifier<List<Map<String, dynamic>>> {
-  final Box<Map<String, dynamic>> scheduledWebhooksBox;
+  final Box<dynamic> scheduledWebhooksBox;
 
   ScheduledWebhooksNotifier(this.scheduledWebhooksBox) : super([]) {
     loadData();
@@ -41,6 +33,9 @@ class ScheduledWebhooksNotifier
 
   Future<void> addScheduledWebhook(Map<String, dynamic> newWebhook) async {
     final int newId = Uuid().hashCode;
+    print('New webhook ID: $newId');
+
+    print('New webhook before assignment: $newWebhook');
 
     final newWebHook = {
       'id': newId,
@@ -48,6 +43,9 @@ class ScheduledWebhooksNotifier
       'url': newWebhook['url'],
       'scheduledDateTime': newWebhook['scheduledDateTime'],
     };
+
+    print('New webhook after assignment: $newWebHook');
+
     try {
       await scheduledWebhooksBox.add(newWebHook);
       loadData();
