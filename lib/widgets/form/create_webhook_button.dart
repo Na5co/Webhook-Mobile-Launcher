@@ -4,6 +4,7 @@ class CreateWebHookButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const CreateWebHookButton({
+    super.key,
     required this.onPressed,
   });
 
@@ -13,19 +14,19 @@ class CreateWebHookButton extends StatelessWidget {
       widthFactor: 0.7,
       child: ElevatedButton(
         onPressed: onPressed,
-        child: Text(
-          'Create Webhook',
-          style: TextStyle(fontSize: 14),
-        ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey[200], // Adjust the base color
-          onPrimary: Colors.black, // Button text color
+          backgroundColor: Colors.grey[200],
+          foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          elevation: 1.5, // Adjust the elevation
-          shadowColor: Colors.grey[300], // Adjust the shadow color
+          elevation: 1.5,
+          shadowColor: Colors.grey[300],
           padding: const EdgeInsets.all(12),
+        ),
+        child: const Text(
+          'Create Webhook',
+          style: TextStyle(fontSize: 14),
         ),
       ),
     );

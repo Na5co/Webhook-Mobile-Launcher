@@ -85,16 +85,16 @@ class MyHomePage extends ConsumerWidget {
 
         resizeToAvoidBottomInset: false,
         body: GradientBackground(colors: [
-          Colors.green.withOpacity(1),
-          Colors.green.withOpacity(0.3),
+          Colors.grey.withOpacity(0.9),
+          Colors.grey.withOpacity(0.3),
         ], child: const WebHookListWidget()),
       ),
       Scaffold(
         backgroundColor: Colors.grey[400], // Set the desired dark grey color
         resizeToAvoidBottomInset: false,
         body: GradientBackground(colors: [
-          Colors.grey.withOpacity(0.1),
           Colors.grey.withOpacity(0.3),
+          Colors.grey.withOpacity(0.7),
         ], child: const CreateWebHookForm()),
       ),
       Scaffold(

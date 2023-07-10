@@ -13,9 +13,8 @@ class DateTimePicker {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: ColorScheme.dark(
-              primary: Colors.purple, // Set the desired purple color
-              surface:
-                  Colors.grey.shade800, // Set the desired darker grey color
+              primary: Colors.purple,
+              surface: Colors.grey.shade800,
             ),
           ),
           child: child ?? Container(),

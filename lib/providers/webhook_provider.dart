@@ -14,10 +14,8 @@ final webHooksProvider =
 });
 
 final onDeletePressedProvider = Provider<Function(int)>((ref) {
-  print('delete pressed');
   return (int index) {
     final webHooksNotifier = ref.read(webHooksProvider.notifier);
-    final webHooks = webHooksNotifier.state;
     webHooksNotifier.deleteWebHook(index);
   };
 });
@@ -162,7 +160,6 @@ class WebHooksNotifier extends StateNotifier<List<Map<String, dynamic>>> {
         'id': webHook['id'],
         'name': webHook['name'],
         'url': webHook['url'],
-        'scheduledDateTime': webHook['scheduledDateTime'],
       };
     }).toList();
     state = data;
@@ -174,27 +171,19 @@ class WebHooksNotifier extends StateNotifier<List<Map<String, dynamic>>> {
     final newWebHook = {
       'id': newId,
       'name': newItem['name'],
-      'url': newItem['url'],
-      'scheduledDateTime': newItem['scheduledDateTime'],
+      'url': newItem['url']
     };
 
     await _webHookBox.add(newWebHook);
     loadData();
   }
 
-  Future<void> updateScheduledDateTime({
-    required int index,
-    required DateTime dateTime,
-  }) async {
-    if (index >= 0 && index < state.length) {
-      final webHook = Map<String, dynamic>.from(state[index]);
-      final updatedWebHook = {
-        ...webHook,
-        'scheduledDateTime': dateTime.toIso8601String(),
-      };
-      await _webHookBox.putAt(index, updatedWebHook);
-      loadData();
-    }
+  Map<String, dynamic>? getWebHook(int id) {
+    final webHook = state.firstWhere(
+      (webHook) => webHook['id'] == id,
+    );
+    print('webHook found $webHook');
+    return webHook;
   }
 
   Future<void> deleteWebHook(int id) async {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../list/ConfigurationPopupMenu.dart';
+import 'configuration_pop_up_menu.dart';
 import '../../providers/webhook_provider.dart';
 import 'GlassContainer.dart';
 import './NeumorphicIconButton.dart';
@@ -114,7 +114,7 @@ class _SingleWebhookState extends ConsumerState<SingleWebhook> {
                       },
                       icon: Icons.delete,
                     ),
-                    ConfigurationPopupMenu(),
+                    ConfigurationPopupMenu(widgetId: webhookId),
                   ],
                 ),
               ),

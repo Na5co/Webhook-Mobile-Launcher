@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wh_launcher/widgets/CardTitleAndDescription.dart';
+import 'package:wh_launcher/widgets/card_title_and_description.dart';
 import '../providers/webhook_provider.dart';
 import '../widgets/list/webhook_single_item.dart';
-import 'package:neumorphic_button/neumorphic_button.dart';
 
 import '../providers/webhook_provider.dart' as wp;
 
@@ -56,7 +55,6 @@ class WebHookListWidget extends ConsumerWidget {
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     if (index >= webHooks.length) {
-                      print('Invalid index: $index');
                       return const SizedBox.shrink();
                     }
                     final webhook = webHooks[index];

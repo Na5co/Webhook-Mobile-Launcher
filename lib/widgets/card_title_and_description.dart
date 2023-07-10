@@ -14,14 +14,14 @@ class WebhookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: Colors.grey.shade200,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade300,
-            offset: Offset(0.3, 0.3),
+            offset: const Offset(0.3, 0.3),
             blurRadius: 2,
           ),
         ],
@@ -33,14 +33,14 @@ class WebhookCard extends StatelessWidget {
           children: [
             Text(
               titleText,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               descriptionText,
               style: TextStyle(
