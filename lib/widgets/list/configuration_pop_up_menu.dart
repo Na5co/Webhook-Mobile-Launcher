@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import './DateTimePicker.dart';
-import '../../providers/scheduled_webhooks_provider.dart' as wp;
+import '../../providers/scheduled_webhooks_provider.dart';
 import '../../providers/webhook_provider.dart';
 
 class ConfigurationPopupMenu extends ConsumerWidget {
@@ -60,7 +60,7 @@ void _openConfigurationMenu(
       'scheduledDateTime': scheduledDateTime,
     };
     ref
-        .read(wp.scheduledWebHooksProvider.notifier)
+        .read(scheduledWebHooksProvider.notifier)
         .addScheduledWebhook(newWebhook);
   }
 }

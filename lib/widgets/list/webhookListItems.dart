@@ -19,7 +19,7 @@ class WebHookListItems extends StatelessWidget {
       return const SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Center(child: Text('No webhooks created yet')),
+          child: Text('No webhooks created yet'),
         ),
       );
     }

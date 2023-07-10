@@ -3,7 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 final scheduledWebHookBoxProvider =
-    Provider<Box<dynamic>>((ref) => Hive.box('webhooks'));
+    Provider<Box<dynamic>>((ref) => Hive.box('scheduled_webhooks'));
 
 final scheduledWebHooksProvider = StateNotifierProvider<
     ScheduledWebhooksNotifier, List<Map<String, dynamic>>>((ref) {
@@ -29,13 +29,20 @@ class ScheduledWebhooksNotifier
       };
     }).toList();
     state = data;
+    print('all data loaded: $data');
+  }
+
+  Future<void> deleteAllScheduledWebhooks() async {
+    try {
+      // await scheduledWebhooksBox.clear();
+      loadData();
+    } catch (error) {
+      throw ('Could not delete all scheduled webhooks: $error');
+    }
   }
 
   Future<void> addScheduledWebhook(Map<String, dynamic> newWebhook) async {
     final int newId = Uuid().hashCode;
-    print('New webhook ID: $newId');
-
-    print('New webhook before assignment: $newWebhook');
 
     final newWebHook = {
       'id': newId,
@@ -44,10 +51,9 @@ class ScheduledWebhooksNotifier
       'scheduledDateTime': newWebhook['scheduledDateTime'],
     };
 
-    print('New webhook after assignment: $newWebHook');
-
     try {
       await scheduledWebhooksBox.add(newWebHook);
+      print(scheduledWebhooksBox.values);
       loadData();
     } catch (error) {
       throw ('Could not create a scheduled webhook: $error');
