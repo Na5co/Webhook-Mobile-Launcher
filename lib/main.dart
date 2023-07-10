@@ -6,6 +6,7 @@ import 'pages/webhook_creation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/webhook_list.dart';
+import './pages/history.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,9 +93,20 @@ class MyHomePage extends ConsumerWidget {
         backgroundColor: Colors.grey[400], // Set the desired dark grey color
         resizeToAvoidBottomInset: false,
         body: GradientBackground(colors: [
-          Colors.green.withOpacity(1),
-          Colors.green.withOpacity(0.3),
+          Colors.grey.withOpacity(0.1),
+          Colors.grey.withOpacity(0.3),
         ], child: const CreateWebHookForm()),
+      ),
+      Scaffold(
+        backgroundColor: Colors.grey[400], // Set the desired dark grey color
+        resizeToAvoidBottomInset: false,
+        body: GradientBackground(
+          colors: [
+            Colors.grey.withOpacity(0.1),
+            Colors.grey.withOpacity(0.3),
+          ],
+          child: const History(),
+        ),
       ),
     ];
 
