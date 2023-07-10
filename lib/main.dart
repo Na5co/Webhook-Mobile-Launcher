@@ -1,11 +1,12 @@
 import 'dart:developer';
-
+import 'GradientBackground.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'pages/webhook_creation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'pages/webhook_list.dart';
+import './pages/history.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -80,16 +81,32 @@ class MyHomePage extends ConsumerWidget {
 
     final List<Widget> bottomBarPages = [
       Scaffold(
-        appBar: AppBar(
-          title: const Text('Webhooks'),
-        ),
-        body: const WebHookListWidget(),
+        backgroundColor: Colors.transparent, // Set the desired dark grey color
+
+        resizeToAvoidBottomInset: false,
+        body: GradientBackground(colors: [
+          Colors.green.withOpacity(1),
+          Colors.green.withOpacity(0.3),
+        ], child: const WebHookListWidget()),
       ),
       Scaffold(
-        appBar: AppBar(
-          title: const Text('Create Webhook'),
+        backgroundColor: Colors.grey[400], // Set the desired dark grey color
+        resizeToAvoidBottomInset: false,
+        body: GradientBackground(colors: [
+          Colors.grey.withOpacity(0.1),
+          Colors.grey.withOpacity(0.3),
+        ], child: const CreateWebHookForm()),
+      ),
+      Scaffold(
+        backgroundColor: Colors.grey[400], // Set the desired dark grey color
+        resizeToAvoidBottomInset: false,
+        body: GradientBackground(
+          colors: [
+            Colors.grey.withOpacity(0.1),
+            Colors.grey.withOpacity(0.3),
+          ],
+          child: const History(),
         ),
-        body: const CreateWebHookForm(),
       ),
     ];
 

@@ -5,6 +5,8 @@ import '../../providers/scheduled_webhooks_provider.dart' as wp;
 import '../../providers/webhook_provider.dart';
 
 class ConfigurationPopupMenu extends ConsumerWidget {
+  const ConfigurationPopupMenu({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<String>(
@@ -32,8 +34,8 @@ class ConfigurationPopupMenu extends ConsumerWidget {
           ); // Pass both BuildContext and ref
         }
       },
-      icon: const Icon(Icons.timer),
-      color: Colors.orange,
+      icon: const Icon(Icons.timer_outlined),
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
       ),
