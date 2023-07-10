@@ -128,7 +128,7 @@ class _BuildFormContent extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 20),
-          if (lastWebHook != null) const WebHookListWidget(),
+          if (lastWebHook != null) const WebHookListScrollView(),
         ],
       ),
     );
