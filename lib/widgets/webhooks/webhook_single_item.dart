@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../webhooks/webhook_menu_items.dart';
 import '../generic_webhook/GlassContainer.dart';
 import '../list/webhook_utils.dart';
+import '../scheduled_webhooks/scheduled_time.dart';
 
 class SingleWebhook extends StatefulWidget {
   final Map<String, dynamic>? webhook;
@@ -55,6 +56,8 @@ class _SingleWebhookState extends State<SingleWebhook> {
       onConfigurePressed: handleConfigureButtonPressed,
     );
 
+    final scheduledRuntime = webhook['scheduledDateTime'] as String? ?? '';
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Container(
@@ -63,35 +66,56 @@ class _SingleWebhookState extends State<SingleWebhook> {
           border: Border.all(color: Colors.white, width: 2),
         ),
         child: GlassContainer(
-          color1: containerColor.withOpacity(0.1),
-          color2: containerColor.withOpacity(1),
-          colorChangeCallback: (Color color) {
-            setState(() {
-              containerColor = color;
-            });
-          },
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Padding(
-              padding: const EdgeInsets.only(bottom: 4, left: 16, right: 16),
-              child: Text(
-                webhook!['name'] as String? ?? '',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+            color1: containerColor.withOpacity(0.1),
+            color2: containerColor.withOpacity(1),
+            colorChangeCallback: (Color color) {
+              setState(() {
+                containerColor = color;
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 4, left: 16, right: 16),
+                          child: Text(
+                            webhook!['name'] as String? ?? '',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 16, right: 16, bottom: 4),
+                          child: Text(
+                            webhook['url'] as String? ?? '',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ScheduledTimeWidget(
+                                scheduledTime: scheduledRuntime),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  menuItems,
+                ],
               ),
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: Text(
-                webhook['url'] as String? ?? '',
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-            trailing: menuItems, // Use the menu items widget
-          ),
-        ),
+            )),
       ),
     );
   }

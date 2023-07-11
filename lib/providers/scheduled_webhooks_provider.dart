@@ -26,16 +26,17 @@ class ScheduledWebhooksNotifier
         'id': webHook['id'],
         'name': webHook['name'],
         'url': webHook['url'],
+        'scheduledDateTime': webHook['scheduledDateTime'],
       };
     }).toList();
     state = data;
+    // await deleteAllScheduledWebhooks();
     print('all data loaded: $data');
   }
 
   Future<void> deleteAllScheduledWebhooks() async {
     try {
-      // await scheduledWebhooksBox.clear();
-      loadData();
+      await scheduledWebhooksBox.clear();
     } catch (error) {
       throw ('Could not delete all scheduled webhooks: $error');
     }
@@ -43,6 +44,8 @@ class ScheduledWebhooksNotifier
 
   Future<void> addScheduledWebhook(Map<String, dynamic> newWebhook) async {
     final int newId = Uuid().hashCode;
+
+    print('newWebhook is ${newWebhook}');
 
     final newWebHook = {
       'id': newId,
@@ -53,7 +56,7 @@ class ScheduledWebhooksNotifier
 
     try {
       await scheduledWebhooksBox.add(newWebHook);
-      print(scheduledWebhooksBox.values);
+      print('scheduledWebhooksBox.values is ${scheduledWebhooksBox.values}');
       loadData();
     } catch (error) {
       throw ('Could not create a scheduled webhook: $error');
