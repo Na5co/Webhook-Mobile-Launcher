@@ -16,38 +16,34 @@ class WebHookTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200, // Adjust the width as needed
+    return SizedBox(
+      width: double.infinity,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12), // Add horizontal padding
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         child: TextFormField(
           controller: controller,
           decoration: InputDecoration(
             prefixIcon: icon != null
-                ? Icon(icon!.icon, color: Colors.orangeAccent)
+                ? Icon(icon?.icon, color: Colors.orangeAccent)
                 : null,
             labelText: labelText,
             labelStyle: TextStyle(color: Colors.grey[600]),
             contentPadding:
-                EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: Colors.white, width: 2), // Increased border width
+              borderSide: const BorderSide(color: Colors.white, width: 2),
               borderRadius: BorderRadius.circular(4),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: Colors.white, width: 2), // Increased border width
+              borderSide: const BorderSide(color: Colors.white, width: 2),
               borderRadius: BorderRadius.circular(4),
             ),
             border: OutlineInputBorder(
-              borderSide: BorderSide(
-                  color: Colors.white, width: 2), // Increased border width
+              borderSide: const BorderSide(color: Colors.white, width: 2),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
-          style: TextStyle(
-              color: Colors.white, fontSize: 14), // Decreased font size
+          style: const TextStyle(color: Colors.white, fontSize: 14),
           validator: validator,
         ),
       ),

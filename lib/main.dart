@@ -10,9 +10,10 @@ import './pages/history.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Hive.initFlutter();
   await Hive.openBox('webhooks');
-  await Hive.openBox<Map<String, dynamic>>('scheduled_webhooks');
+  await Hive.openBox('scheduled_webhooks');
 
   runApp(
     const ProviderScope(
@@ -49,23 +50,6 @@ class MyHomePageNotifier extends StateNotifier<int> {
   }
 }
 
-final webHooksProvider = Provider<List<Map<String, dynamic>>>((ref) {
-  final webHookBox = Hive.box('webhooks');
-  final webHooks = webHookBox.values.toList();
-
-  final convertedWebHooks = webHooks
-      .map((item) {
-        if (item != null && item is Map<dynamic, dynamic>) {
-          return Map<String, dynamic>.from(item as Map<dynamic, dynamic>);
-        }
-        return null;
-      })
-      .whereType<Map<String, dynamic>>()
-      .toList();
-
-  return convertedWebHooks.isNotEmpty ? convertedWebHooks : [];
-});
-
 final notchBottomBarControllerProvider = Provider<NotchBottomBarController>(
     (ref) => NotchBottomBarController(index: 0));
 
@@ -85,16 +69,16 @@ class MyHomePage extends ConsumerWidget {
 
         resizeToAvoidBottomInset: false,
         body: GradientBackground(colors: [
-          Colors.green.withOpacity(1),
-          Colors.green.withOpacity(0.3),
-        ], child: const WebHookListWidget()),
+          Colors.grey.withOpacity(0.9),
+          Colors.grey.withOpacity(0.3),
+        ], child: const WebHookListScrollView()),
       ),
       Scaffold(
         backgroundColor: Colors.grey[400], // Set the desired dark grey color
         resizeToAvoidBottomInset: false,
         body: GradientBackground(colors: [
-          Colors.grey.withOpacity(0.1),
           Colors.grey.withOpacity(0.3),
+          Colors.grey.withOpacity(0.7),
         ], child: const CreateWebHookForm()),
       ),
       Scaffold(

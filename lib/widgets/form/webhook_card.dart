@@ -14,9 +14,9 @@ class WebHookCard extends ConsumerWidget {
     return Expanded(
       child: Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Rounded corners
+          borderRadius: BorderRadius.circular(8),
         ),
-        elevation: 4, // Card elevation
+        elevation: 4,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -1,44 +1,62 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uuid/uuid.dart';
 
-final scheduledWebhooksBoxProvider = Provider<Box<Map<String, dynamic>>>(
-    (ref) => Hive.box('scheduled_webhooks'));
+final scheduledWebHookBoxProvider =
+    Provider<Box<dynamic>>((ref) => Hive.box('scheduled_webhooks'));
 
-final scheduledWebhooksProvider = StateNotifierProvider<
+final scheduledWebHooksProvider = StateNotifierProvider<
     ScheduledWebhooksNotifier, List<Map<String, dynamic>>>((ref) {
-  final box = ref.watch(scheduledWebhooksBoxProvider);
+  final box = ref.watch(scheduledWebHookBoxProvider);
   return ScheduledWebhooksNotifier(box);
-});
-
-final addScheduledWebhookProvider =
-    FutureProvider.family<void, Map<String, dynamic>>((ref, webhook) async {
-  final scheduledWebhooksNotifier =
-      ref.read(scheduledWebhooksProvider.notifier);
-  await scheduledWebhooksNotifier.addScheduledWebhook(webhook);
 });
 
 class ScheduledWebhooksNotifier
     extends StateNotifier<List<Map<String, dynamic>>> {
-  final Box<Map<String, dynamic>> _scheduledWebhooksBox;
+  final Box<dynamic> scheduledWebhooksBox;
 
-  ScheduledWebhooksNotifier(this._scheduledWebhooksBox) : super([]) {
+  ScheduledWebhooksNotifier(this.scheduledWebhooksBox) : super([]) {
     loadData();
   }
 
   Future<void> loadData() async {
-    final data = _scheduledWebhooksBox.values.toList();
+    final data = scheduledWebhooksBox.values.map((value) {
+      final webHook = Map<String, dynamic>.from(value);
+      return {
+        'id': webHook['id'],
+        'name': webHook['name'],
+        'url': webHook['url'],
+      };
+    }).toList();
     state = data;
+    print('all data loaded: $data');
   }
 
-  Future<void> addScheduledWebhook(Map<String, dynamic> newWebhook) async {
+  Future<void> deleteAllScheduledWebhooks() async {
     try {
-      print(newWebhook);
-      await _scheduledWebhooksBox.add(newWebhook);
+      // await scheduledWebhooksBox.clear();
       loadData();
     } catch (error) {
-      throw ('Coulding create a scheduled webhook $error');
+      throw ('Could not delete all scheduled webhooks: $error');
     }
   }
 
-  // Implement other methods such as updateScheduledDateTime and deleteWebhook
+  Future<void> addScheduledWebhook(Map<String, dynamic> newWebhook) async {
+    final int newId = Uuid().hashCode;
+
+    final newWebHook = {
+      'id': newId,
+      'name': newWebhook['name'],
+      'url': newWebhook['url'],
+      'scheduledDateTime': newWebhook['scheduledDateTime'],
+    };
+
+    try {
+      await scheduledWebhooksBox.add(newWebHook);
+      print(scheduledWebhooksBox.values);
+      loadData();
+    } catch (error) {
+      throw ('Could not create a scheduled webhook: $error');
+    }
+  }
 }

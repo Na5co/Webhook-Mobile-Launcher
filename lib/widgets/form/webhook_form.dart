@@ -34,9 +34,8 @@ class _BuildFormContent extends ConsumerWidget {
     Map<String, dynamic>? lastWebHook;
 
     Future<void> _createWh(Map<String, dynamic> newItem) async {
-      print('Creating webhook... og');
       await _webHooks.addWebHook(newItem);
-      lastWebHook = newItem; // Update lastWebHook with the newly added webhook
+      lastWebHook = newItem;
     }
 
     final urlValidator = ref.watch(urlValidatorProvider);
@@ -106,7 +105,7 @@ class _BuildFormContent extends ConsumerWidget {
                 return;
               }
 
-              if (await urlValidator(url)) {
+              if (urlValidator(url)) {
                 _createWh({
                   'name': name,
                   'url': url,
@@ -129,7 +128,7 @@ class _BuildFormContent extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 20),
-          if (lastWebHook != null) WebHookListWidget(),
+          if (lastWebHook != null) const WebHookListScrollView(),
         ],
       ),
     );
