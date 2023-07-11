@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './configuration_pop_up_menu.dart';
+import 'webhook_menu_items.dart';
 import 'GlassContainer.dart';
 import './NeumorphicIconButton.dart';
 
@@ -31,11 +31,28 @@ class _SingleWebhookState extends State<SingleWebhook> {
     });
   }
 
+  void handleConfigureButtonPressed() {
+    final webhookId = widget.webhook!['id'] as int;
+    // Handle the configure button press
+  }
+
   @override
   Widget build(BuildContext context) {
     final webhookId = widget.webhook!['id'] as int;
 
     final webhook = widget.webhook;
+    final menuItems = WebHookMenuItems(
+      widgetId: webhookId,
+      playButtonColor: _defaultColor,
+      onPlayPressed: handlePlayButtonPressed,
+      onDeletePressed: () {
+        final webhookId = webhook!['id'] as int?;
+        if (webhookId != null) {
+          widget.onDeletePressed(webhookId);
+        }
+      },
+      onConfigurePressed: handleConfigureButtonPressed,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -71,27 +88,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
                 style: const TextStyle(fontSize: 14),
               ),
             ),
-            trailing: Wrap(
-              spacing: 8,
-              children: [
-                NeumorphicIconButton(
-                  color: _defaultColor,
-                  onDeletePressed: handlePlayButtonPressed,
-                  icon: Icons.play_circle_fill_sharp,
-                ),
-                NeumorphicIconButton(
-                  color: Colors.red,
-                  onDeletePressed: () {
-                    final webhookId = webhook['id'] as int?;
-                    if (webhookId != null) {
-                      widget.onDeletePressed(webhookId);
-                    }
-                  },
-                  icon: Icons.delete,
-                ),
-                ConfigurationPopupMenu(widgetId: webhookId),
-              ],
-            ),
+            trailing: menuItems, // Use the menu items widget
           ),
         ),
       ),
