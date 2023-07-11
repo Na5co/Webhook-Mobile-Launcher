@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'webhook_menu_items.dart';
 import 'GlassContainer.dart';
-import './NeumorphicIconButton.dart';
+import 'webhook_utils.dart';
 
 class SingleWebhook extends StatefulWidget {
   final Map<String, dynamic>? webhook;
@@ -24,16 +24,20 @@ class _SingleWebhookState extends State<SingleWebhook> {
   Color containerColor = Colors.white;
 
   void handlePlayButtonPressed() async {
-    final result = await widget.onPlayPressed(widget.webhook);
-
+    final result =
+        await playButtonPressed(widget.onPlayPressed, widget.webhook);
     setState(() {
       containerColor = result ? Colors.green : Colors.red;
     });
   }
 
-  void handleConfigureButtonPressed() {
+  void handleConfigureButtonPressed() async {
+    configurePressed(context, widget.webhook!);
+  }
+
+  void handleDeletePressed() async {
     final webhookId = widget.webhook!['id'] as int;
-    // Handle the configure button press
+    deletePressed(widget.onDeletePressed, webhookId);
   }
 
   @override
@@ -42,15 +46,12 @@ class _SingleWebhookState extends State<SingleWebhook> {
 
     final webhook = widget.webhook;
     final menuItems = WebHookMenuItems(
+      name: webhook!['name'] as String? ?? '',
+      url: webhook['url'] as String? ?? '',
       widgetId: webhookId,
       playButtonColor: _defaultColor,
       onPlayPressed: handlePlayButtonPressed,
-      onDeletePressed: () {
-        final webhookId = webhook!['id'] as int?;
-        if (webhookId != null) {
-          widget.onDeletePressed(webhookId);
-        }
-      },
+      onDeletePressed: handleDeletePressed,
       onConfigurePressed: handleConfigureButtonPressed,
     );
 

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 class DateTimePicker {
   static Future<DateTime?> pickDateTime(BuildContext context) async {
-    DateTime? selectedDateTime;
-
-    final pickedDate = await showDatePicker(
+    final pickedDateTime = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
@@ -22,33 +20,31 @@ class DateTimePicker {
       },
     );
 
-    if (pickedDate != null) {
-      final pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-        builder: (BuildContext context, Widget? child) {
-          return Theme(
-            data: ThemeData.dark().copyWith(
-              colorScheme: ThemeData.dark().colorScheme.copyWith(
-                    primary: Colors.purple, // Set the desired purple color
-                  ),
-            ),
-            child: child ?? Container(),
-          );
-        },
-      );
+    final pickedTime = pickedDateTime != null
+        ? await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.now(),
+            builder: (BuildContext context, Widget? child) {
+              return Theme(
+                data: ThemeData.dark().copyWith(
+                  colorScheme: ThemeData.dark().colorScheme.copyWith(
+                        primary: Colors.purple,
+                      ),
+                ),
+                child: child ?? Container(),
+              );
+            },
+          )
+        : null;
 
-      if (pickedTime != null) {
-        selectedDateTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-      }
-    }
-
-    return selectedDateTime;
+    return pickedDateTime != null && pickedTime != null
+        ? DateTime(
+            pickedDateTime.year,
+            pickedDateTime.month,
+            pickedDateTime.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          )
+        : null; // Return null if no valid date and time were selected
   }
 }
