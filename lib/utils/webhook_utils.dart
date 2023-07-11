@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/scheduled_webhooks_provider.dart';
-import '../scheduled_webhooks/DateTimePicker.dart' as dp;
+import '../widgets/scheduled_webhooks/DateTimePicker.dart';
 
 Future<bool> playButtonPressed(
   Function(Map<String, dynamic>?) onPlayPressed,
@@ -24,5 +24,5 @@ void configurePressed(
 ) async {
   print('from configurePressed');
 
-  await dp.DateTimePicker.pickDateTime(context);
+  await DateTimePicker.pickDateTime(context);
 }

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
-import './send_request.dart';
+import '../utils/send_request.dart';
 import './webhook_state.dart';
 
 final webHookBoxProvider =

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wh_launcher/widgets/list/NeumorphicIconButton.dart';
+import 'package:wh_launcher/widgets/generic_webhook/NeumorphicIconButton.dart';
 import '../../providers/scheduled_webhooks_provider.dart';
 import 'DateTimePicker.dart';
 

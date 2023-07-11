@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'webhook_menu_items.dart';
-import 'GlassContainer.dart';
-import 'webhook_utils.dart';
+import '../webhooks/webhook_menu_items.dart';
+import '../generic_webhook/GlassContainer.dart';
+import '../list/webhook_utils.dart';
 
 class SingleWebhook extends StatefulWidget {
   final Map<String, dynamic>? webhook;
