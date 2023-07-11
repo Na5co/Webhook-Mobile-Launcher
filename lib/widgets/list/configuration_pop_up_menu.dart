@@ -3,45 +3,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import './DateTimePicker.dart';
 import '../../providers/scheduled_webhooks_provider.dart';
 import '../../providers/webhook_provider.dart';
+import './NeumorphicIconButton.dart';
 
 class ConfigurationPopupMenu extends ConsumerWidget {
   final int? widgetId;
 
   const ConfigurationPopupMenu({
-    super.key,
+    Key? key,
     required this.widgetId,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final webhook = ref.watch(webHooksProvider.notifier).getWebHook(widgetId!);
-    return PopupMenuButton<String>(
-      itemBuilder: (BuildContext context) {
-        return <PopupMenuEntry<String>>[
-          const PopupMenuItem<String>(
-            value: 'configure',
-            child: ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Configure'),
-            ),
-          ),
-        ];
-      },
-      onSelected: (value) {
-        print('foff');
-
-        print('da webhook: $webhook');
+    return NeumorphicIconButton(
+      color: Colors.orange,
+      icon: Icons.timelapse_sharp,
+      onDeletePressed: () {
         if (webhook != null) {
-          print('stable');
           _openConfigurationMenu(context, ref, webhook!);
         }
       },
-      icon: const Icon(Icons.timer_outlined),
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      offset: const Offset(0, 40),
     );
   }
 }

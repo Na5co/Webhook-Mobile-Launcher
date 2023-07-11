@@ -50,23 +50,6 @@ class MyHomePageNotifier extends StateNotifier<int> {
   }
 }
 
-// final webHooksProvider = Provider<List<Map<String, dynamic>>>((ref) {
-//   final webHookBox = Hive.box('webhooks');
-//   final webHooks = webHookBox.values.toList();
-
-//   final convertedWebHooks = webHooks
-//       .map((item) {
-//         if (item != null && item is Map<dynamic, dynamic>) {
-//           return Map<String, dynamic>.from(item);
-//         }
-//         return null;
-//       })
-//       .whereType<Map<String, dynamic>>()
-//       .toList();
-
-//   return convertedWebHooks.isNotEmpty ? convertedWebHooks : [];
-// });
-
 final notchBottomBarControllerProvider = Provider<NotchBottomBarController>(
     (ref) => NotchBottomBarController(index: 0));
 
