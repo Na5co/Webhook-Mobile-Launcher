@@ -18,7 +18,7 @@ class ScheduledWebhooksNotifier
 
   ScheduledWebhooksNotifier(this.scheduledWebhooksBox) : super([]) {
     loadData();
-    scheduleWebhooksExecution(); // Schedule the execution of webhooks on app start
+    scheduleWebhooksExecution();
   }
 
   Future<void> loadData() async {
@@ -42,17 +42,57 @@ class ScheduledWebhooksNotifier
         'scheduledDateTime': scheduledDateTime,
       };
     }).toList();
-    // await deleteAllScheduledWebhooks();
     state = data;
     print('All data loaded: $data');
   }
 
-  Future<void> deleteAllScheduledWebhooks() async {
+  Future<void> executeScheduledWebhook(Map<String, dynamic> webhook) async {
+    final String url = webhook['url'];
+
     try {
-      await scheduledWebhooksBox.clear();
+      final response = await Dio().get(url);
+      print('Status CODE IS: ${response.statusCode}');
+
+      // Handle the response as needed
+
+      final webhookId = webhook['id'] as int;
+      await deleteWebhook(webhookId);
     } catch (error) {
-      throw ('Could not delete all scheduled webhooks: $error');
+      print('Error executing scheduled webhook: $error');
     }
+  }
+
+  Future<void> scheduleWebhooksExecution() async {
+    final currentTime = DateTime.now();
+
+    final List<Map<String, dynamic>> webhooksToExecute = state.where((webhook) {
+      final scheduledDateTime = webhook['scheduledDateTime'] as DateTime?;
+      return scheduledDateTime != null &&
+          scheduledDateTime.isBefore(currentTime);
+    }).toList();
+
+    for (final webhook in webhooksToExecute) {
+      await executeScheduledWebhook(webhook);
+    }
+
+    // Schedule the next execution
+    final nextExecutionTime = getNextExecutionTime();
+    final delay = nextExecutionTime.difference(currentTime);
+    await Future.delayed(delay);
+    scheduleWebhooksExecution();
+  }
+
+  DateTime getNextExecutionTime() {
+    final currentTime = DateTime.now();
+    final List<DateTime> scheduledDateTimeList = state
+        .map((webhook) => webhook['scheduledDateTime'] as DateTime)
+        .where((dateTime) => dateTime != null && dateTime.isAfter(currentTime))
+        .toList();
+
+    scheduledDateTimeList.sort();
+    return scheduledDateTimeList.isNotEmpty
+        ? scheduledDateTimeList.first
+        : currentTime.add(const Duration(days: 1));
   }
 
   Future<void> addScheduledWebhook(Map<String, dynamic> newWebhook) async {
@@ -73,31 +113,11 @@ class ScheduledWebhooksNotifier
     }
   }
 
-  Future<void> executeScheduledWebhook(Map<String, dynamic> webhook) async {
-    print('foff');
-    final String url = webhook['url'];
-
-    try {
-      final response = await Dio().get(url);
-      print('Status CAODE IS: ${response.statusCode}');
-
-      // Handle the response as needed
-    } catch (error) {
-      print('Error executing scheduled webhook: $error');
-    }
-  }
-
-  Future<void> scheduleWebhooksExecution() async {
-    final currentTime = DateTime.now();
-
-    final List<Map<String, dynamic>> webhooksToExecute = state.where((webhook) {
-      final scheduledDateTime = webhook['scheduledDateTime'] as DateTime?;
-      return scheduledDateTime != null &&
-          scheduledDateTime.isBefore(currentTime);
-    }).toList();
-
-    for (final webhook in webhooksToExecute) {
-      await executeScheduledWebhook(webhook);
+  Future<void> deleteWebhook(int webhookId) async {
+    final index = state.indexWhere((webhook) => webhook['id'] == webhookId);
+    if (index != -1) {
+      await scheduledWebhooksBox.deleteAt(index);
+      loadData();
     }
   }
 }
