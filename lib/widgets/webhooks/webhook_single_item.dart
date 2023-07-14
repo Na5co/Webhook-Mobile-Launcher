@@ -46,6 +46,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
     final webhookId = widget.webhook!['id'] as int;
 
     final webhook = widget.webhook;
+
     final menuItems = WebHookMenuItems(
       name: webhook!['name'] as String? ?? '',
       url: webhook['url'] as String? ?? '',
@@ -56,7 +57,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
       onConfigurePressed: handleConfigureButtonPressed,
     );
 
-    final scheduledRuntime = webhook['scheduledDateTime'] as String? ?? '';
+    final scheduledRuntime = webhook['scheduledDateTime'] as DateTime?;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -66,56 +67,57 @@ class _SingleWebhookState extends State<SingleWebhook> {
           border: Border.all(color: Colors.white, width: 2),
         ),
         child: GlassContainer(
-            color1: containerColor.withOpacity(0.1),
-            color2: containerColor.withOpacity(1),
-            colorChangeCallback: (Color color) {
-              setState(() {
-                containerColor = color;
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              bottom: 4, left: 16, right: 16),
-                          child: Text(
+          color1: containerColor.withOpacity(0.1),
+          color2: containerColor.withOpacity(1),
+          colorChangeCallback: (Color color) {
+            setState(() {
+              containerColor = color;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             webhook!['name'] as String? ?? '',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              left: 16, right: 16, bottom: 4),
-                          child: Text(
+                          const SizedBox(height: 4),
+                          Text(
                             webhook['url'] as String? ?? '',
                             style: const TextStyle(fontSize: 14),
                           ),
-                        ),
-                        const Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ScheduledTimeWidget(
-                                scheduledTime: scheduledRuntime),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                    menuItems,
+                  ],
+                ),
+                if (scheduledRuntime != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: ScheduledTimeWidget(
+                        scheduledTime: scheduledRuntime,
+                      ),
                     ),
                   ),
-                  menuItems,
-                ],
-              ),
-            )),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
