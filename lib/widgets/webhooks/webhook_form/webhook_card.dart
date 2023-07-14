@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/webhook_provider.dart';
+import '../../../providers/webhook_provider.dart';
 
 class WebHookCard extends ConsumerWidget {
   final Widget child;

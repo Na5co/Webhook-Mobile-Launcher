@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './webhook_single_item.dart';
+import '../webhook_single_item.dart';
 
 class WebHookListItems extends StatelessWidget {
   final List<Map<String, dynamic>> webHooks;
