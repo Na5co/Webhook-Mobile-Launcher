@@ -51,7 +51,10 @@ dependencies:
   flutter_neumorphic: ^3.2.0
   neumorphic_button: ^0.0.1+2
   intl: ^0.18.1
-  timer: ^1.0.1
+  flutter_background_service: ^3.0.1
+  flutter_background: ^1.2.0
+
+
 
 dev_dependencies:
   flutter_test:

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/webhook_provider.dart';
 import '../../../pages/webhook_list.dart';
-import '../create_webhook_button.dart';
-import '../webhook_table_title.dart';
-import '../webhook_table_description.dart';
+import '../webook_card/webhook_table_title.dart';
+import '../webook_card/create_webhook_button.dart';
+import '../webook_card/webhook_table_description.dart';
 import '../webhook_text_field.dart';
 
 class CreateWebHookForm extends StatelessWidget {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/scheduled_webhooks_provider.dart';
+
 import 'package:intl/intl.dart';
 
 class ScheduledTimeWidget extends StatelessWidget {

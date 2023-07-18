@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 
 final scheduledWebHookBoxProvider =
     Provider<Box<dynamic>>((ref) => Hive.box('scheduled_webhooks'));
@@ -15,8 +16,11 @@ final scheduledWebHooksProvider = StateNotifierProvider<
 class ScheduledWebhooksNotifier
     extends StateNotifier<List<Map<String, dynamic>>> {
   final Box<dynamic> scheduledWebhooksBox;
+  final FlutterBackgroundService backgroundService;
 
-  ScheduledWebhooksNotifier(this.scheduledWebhooksBox) : super([]) {
+  ScheduledWebhooksNotifier(this.scheduledWebhooksBox)
+      : backgroundService = FlutterBackgroundService(),
+        super([]) {
     loadData();
     scheduleWebhooksExecution();
   }
@@ -79,7 +83,13 @@ class ScheduledWebhooksNotifier
     final nextExecutionTime = getNextExecutionTime();
     final delay = nextExecutionTime.difference(currentTime);
     await Future.delayed(delay);
-    scheduleWebhooksExecution();
+
+    final service = FlutterBackgroundService();
+    var isRunning = await service.isRunning();
+
+    if (isRunning) {
+      scheduleWebhooksExecution();
+    }
   }
 
   DateTime getNextExecutionTime() {
