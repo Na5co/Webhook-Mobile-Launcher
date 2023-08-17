@@ -1,4 +1,4 @@
-![image](https://github.com/Na5co/Webhook-Mobile-Launcher/assets/36938454/51d138a9-7aed-476f-af86-028c4537a5da)
+![image](https://github.com/Na5co/Webhook-Mobile-Launcher/assets/36938454/a4f80fef-6ed7-4950-92aa-148f0c5154a2)
 
 
 📱💨 **Webhook Launcher: Simplify, Execute, and Automate Webhooks on the Go!**
