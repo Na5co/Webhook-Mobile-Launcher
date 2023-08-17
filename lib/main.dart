@@ -14,6 +14,7 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('webhooks');
   await Hive.openBox('scheduled_webhooks');
+  await initializeService();
 
   runApp(
     const ProviderScope(
@@ -22,7 +23,6 @@ void main() async {
   );
 
   // Start the background service
-  await initializeService();
 }
 
 class MyApp extends StatelessWidget {

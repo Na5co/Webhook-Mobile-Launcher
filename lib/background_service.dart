@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
-
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/scheduled_webhooks_provider.dart';
 
 Future<void> initializeService() async {
   final service = FlutterBackgroundService();
@@ -59,61 +57,34 @@ Future<void> initializeService() async {
   service.startService();
 }
 
+// ... (existing code)
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
-  // Only available for Flutter 3.0.0 and later
-  DartPluginRegistrant.ensureInitialized();
+  final container = ProviderContainer();
+  final scheduledWebhooks = container.read(scheduledWebHooksProvider);
+  container.dispose();
 
-  // For Flutter prior to version 3.0.0
-  // We have to register the plugin manually
+  if (scheduledWebhooks.isNotEmpty) {
+    final currentTime = DateTime.now();
+    final nextExecutionTime = scheduledWebhooks
+        .where((webhook) =>
+            webhook['scheduledDateTime'] != null &&
+            webhook['scheduledDateTime'].isAfter(currentTime))
+        .map((webhook) => webhook['scheduledDateTime'])
+        .reduce((value, element) => value.isBefore(element) ? value : element);
 
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.setString("hello", "world");
+    final delay = nextExecutionTime.difference(currentTime);
+    await Future.delayed(delay);
 
-  /// OPTIONAL when using custom notification
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+    final notifier = container.read(scheduledWebHooksProvider.notifier);
+    final webhookToExecute = scheduledWebhooks.firstWhere(
+        (webhook) => webhook['scheduledDateTime'] == nextExecutionTime);
 
-  if (service is AndroidServiceInstance) {
-    service.on('setAsForeground').listen((event) {
-      service.setAsForegroundService();
-    });
+    await notifier.executeScheduledWebhook(webhookToExecute);
+    await notifier.deleteWebhook(webhookToExecute['id'] as int);
 
-    service.on('setAsBackground').listen((event) {
-      service.setAsBackgroundService();
-    });
+    onStart(service);
   }
 
-  service.on('stopService').listen((event) {
-    service.stopSelf();
-  });
-
-  Timer.periodic(const Duration(seconds: 10), (timer) async {
-    if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
-        flutterLocalNotificationsPlugin.show(
-          888,
-          'COOL SERVICE',
-          'Awesome ${DateTime.now()}',
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
-              'my_foreground',
-              'MY FOREGROUND SERVICE',
-              icon: 'ic_bg_service_small',
-              ongoing: true,
-            ),
-          ),
-        );
-
-        // if you don't use custom notification, uncomment this
-        service.setForegroundNotificationInfo(
-          title: "Snail service",
-          content: "Updated at ${DateTime.now()}",
-        );
-      }
-    }
-
-    /// you can see this log in logcat
-    print('FLUTTER BACKGROUND SERVICE: ${DateTime.now()}');
-  });
+  print('FLUTTER BACKGROUND SERVICE: ${DateTime.now()}');
 }

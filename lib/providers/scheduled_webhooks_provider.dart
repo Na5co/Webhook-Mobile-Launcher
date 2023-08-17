@@ -55,6 +55,7 @@ class ScheduledWebhooksNotifier
 
     try {
       final response = await Dio().get(url);
+      print("porke en muher");
       print('Status CODE IS: ${response.statusCode}');
 
       // Handle the response as needed
@@ -75,19 +76,21 @@ class ScheduledWebhooksNotifier
           scheduledDateTime.isBefore(currentTime);
     }).toList();
 
-    for (final webhook in webhooksToExecute) {
-      await executeScheduledWebhook(webhook);
-    }
+    if (webhooksToExecute.isNotEmpty) {
+      final webhook = webhooksToExecute.first;
+      final nextExecutionTime = webhook['scheduledDateTime'] as DateTime;
+      final delay = nextExecutionTime.difference(currentTime);
 
-    // Schedule the next execution
-    final nextExecutionTime = getNextExecutionTime();
-    final delay = nextExecutionTime.difference(currentTime);
-    await Future.delayed(delay);
+      await Future.delayed(delay);
 
-    final service = FlutterBackgroundService();
-    var isRunning = await service.isRunning();
+      final service = FlutterBackgroundService();
+      var isRunning = await service.isRunning();
 
-    if (isRunning) {
+      if (isRunning) {
+        await executeScheduledWebhook(webhook);
+      }
+
+      // Schedule the next execution
       scheduleWebhooksExecution();
     }
   }
@@ -96,7 +99,7 @@ class ScheduledWebhooksNotifier
     final currentTime = DateTime.now();
     final List<DateTime> scheduledDateTimeList = state
         .map((webhook) => webhook['scheduledDateTime'] as DateTime)
-        .where((dateTime) => dateTime != null && dateTime.isAfter(currentTime))
+        .where((dateTime) => dateTime.isAfter(currentTime))
         .toList();
 
     scheduledDateTimeList.sort();
