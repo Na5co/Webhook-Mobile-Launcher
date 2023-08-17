@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../webhooks/webhook_menu_items.dart';
-import '../generic_webhook/GlassContainer.dart';
-import '../list/webhook_utils.dart';
-import '../scheduled_webhooks/scheduled_time.dart';
+import '../webook_card/webhook_menu_items.dart';
+import '../../generic_webhook/GlassContainer.dart';
+import '../../list/webhook_utils.dart';
+import '../../scheduled_webhooks/scheduled_time.dart';
 
 class SingleWebhook extends StatefulWidget {
   final Map<String, dynamic>? webhook;
@@ -44,9 +44,7 @@ class _SingleWebhookState extends State<SingleWebhook> {
   @override
   Widget build(BuildContext context) {
     final webhookId = widget.webhook!['id'] as int;
-
     final webhook = widget.webhook;
-
     final menuItems = WebHookMenuItems(
       name: webhook!['name'] as String? ?? '',
       url: webhook['url'] as String? ?? '',
@@ -56,7 +54,6 @@ class _SingleWebhookState extends State<SingleWebhook> {
       onDeletePressed: handleDeletePressed,
       onConfigurePressed: handleConfigureButtonPressed,
     );
-
     final scheduledRuntime = webhook['scheduledDateTime'] as DateTime?;
 
     return Padding(

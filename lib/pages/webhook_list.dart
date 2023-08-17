@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wh_launcher/widgets/webhooks/card_title_and_description.dart';
 import '../widgets/generic_webhook/switch_button.dart';
-import '../widgets/webhooks/webhook_single_item.dart';
+import '../widgets/webhooks/webook_card/webhook_single_item.dart';
 import '../providers/webhook_provider.dart';
+import '../widgets/webhooks/webook_card/card_title_and_description.dart';
 import '../providers/scheduled_webhooks_provider.dart';
 
 class WebHookListScrollView extends ConsumerStatefulWidget {

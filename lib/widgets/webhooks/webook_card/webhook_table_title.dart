@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../HexColor.dart';
 
 class WebHookTableTitle extends StatelessWidget {
   final String text;

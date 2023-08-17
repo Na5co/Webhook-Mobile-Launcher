@@ -1,12 +1,12 @@
-import 'dart:developer';
-import 'GradientBackground.dart';
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'pages/webhook_creation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'pages/webhook_list.dart';
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import './pages/history.dart';
+import 'pages/webhook_creation.dart';
+import 'pages/webhook_list.dart';
+import './background_service.dart';
+import './utils/GradientBackground.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,12 +14,15 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('webhooks');
   await Hive.openBox('scheduled_webhooks');
+  await initializeService();
 
   runApp(
     const ProviderScope(
       child: MyApp(),
     ),
   );
+
+  // Start the background service
 }
 
 class MyApp extends StatelessWidget {
@@ -150,7 +153,7 @@ class MyHomePage extends ConsumerWidget {
                 ),
               ],
               onTap: (index) {
-                log('current selected index $index');
+                print('current selected index $index');
                 _pageController.jumpToPage(index);
               },
             )
